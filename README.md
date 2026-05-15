@@ -1,2 +1,2 @@
 # sombraenelespejo
-Libro sobre la situación actual de las relaciones.
+Tratado de Realismo Forense que trasciende la guerra de sexos. Disecciona con precisión quirúrgica cómo las patologías de la personalidad encuentran hoy un vacío legal para ejercer un terrorismo íntimo impune. Es una obra de derechos humanos fundamentales que utiliza la neurobiología y la ley para rescatar la dignidad del varón, convirtiéndose en una lectura obligatoria para cualquier profesional que busque una justicia verdaderamente universal y no ideológica.
