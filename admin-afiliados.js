@@ -12,7 +12,24 @@ const purchasesTable = document.getElementById("purchasesTable");
 const refreshBtn = document.getElementById("refreshAffiliateStats");
 
 function normalizeEmail(email) {
-  return String(email || "").trim().toLowerCase();
+  const value = String(email || "").trim().toLowerCase();
+  const [local = "", domain = ""] = value.split("@");
+  if (domain === "gmail.com" || domain === "googlemail.com") {
+    const cleanLocal = local.split("+")[0].replace(/\./g, "");
+    return `${cleanLocal}@gmail.com`;
+  }
+  return value;
+}
+
+function hasAdminRole(rawRole) {
+  if (typeof rawRole === "string") {
+    const normalized = rawRole.trim().toLowerCase();
+    return ["admin", "administrador", "superadmin"].includes(normalized);
+  }
+  if (Array.isArray(rawRole)) {
+    return rawRole.some((item) => hasAdminRole(item));
+  }
+  return false;
 }
 
 function isAdminUser(user) {
@@ -26,8 +43,10 @@ function isAdminUser(user) {
     return true;
   }
 
-  const role = user?.user_metadata?.role || user?.app_metadata?.role;
-  return role === "admin";
+  return hasAdminRole(user?.user_metadata?.role)
+    || hasAdminRole(user?.user_metadata?.roles)
+    || hasAdminRole(user?.app_metadata?.role)
+    || hasAdminRole(user?.app_metadata?.roles);
 }
 
 function extractOriginFromPayload(payload) {

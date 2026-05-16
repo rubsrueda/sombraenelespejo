@@ -1,6 +1,7 @@
 import { CATALOGO, PRODUCTO_ACTUAL } from "./producto-config.js";
 import { applyCheckoutGrantFromUrl, hasAccess } from "./access-control.js";
-import { saveEntitlementForCurrentUser } from "./entitlements.js";
+import { getCurrentUser, saveEntitlementForCurrentUser } from "./entitlements.js";
+import { ADMIN_EMAILS } from "./admin-config.js";
 import { getCurrentLang, getProductI18n, t } from "./i18n.js";
 
 const bookTitle = document.getElementById("bookTitle");
@@ -29,6 +30,44 @@ const SECTION_ALIASES = {
     "参考文献",
   ],
 };
+
+function normalizeEmail(email) {
+  const value = String(email || "").trim().toLowerCase();
+  const [local = "", domain = ""] = value.split("@");
+  if (domain === "gmail.com" || domain === "googlemail.com") {
+    const cleanLocal = local.split("+")[0].replace(/\./g, "");
+    return `${cleanLocal}@gmail.com`;
+  }
+  return value;
+}
+
+function hasAdminRole(rawRole) {
+  if (typeof rawRole === "string") {
+    const normalized = rawRole.trim().toLowerCase();
+    return ["admin", "administrador", "superadmin"].includes(normalized);
+  }
+  if (Array.isArray(rawRole)) {
+    return rawRole.some((item) => hasAdminRole(item));
+  }
+  return false;
+}
+
+function isAdminUser(user) {
+  const email = normalizeEmail(user?.email);
+  if (!email) {
+    return false;
+  }
+
+  const allowList = ADMIN_EMAILS.map(normalizeEmail);
+  if (allowList.includes(email)) {
+    return true;
+  }
+
+  return hasAdminRole(user?.user_metadata?.role)
+    || hasAdminRole(user?.user_metadata?.roles)
+    || hasAdminRole(user?.app_metadata?.role)
+    || hasAdminRole(user?.app_metadata?.roles);
+}
 
 function normalizeHeading(text = "") {
   return text
@@ -118,9 +157,11 @@ async function loadBook() {
   return response.text();
 }
 
-function renderStatus(unlocked) {
+function renderStatus(unlocked, isAdmin) {
   if (unlocked) {
-    statusNode.textContent = t("dynamic.lectura.active");
+    statusNode.textContent = isAdmin
+      ? "Acceso administrador activo. Contenido completo habilitado."
+      : t("dynamic.lectura.active");
     return;
   }
   statusNode.innerHTML = t("dynamic.lectura.pending");
@@ -161,7 +202,9 @@ async function init() {
       accessParam: CATALOGO.accesoUrlParam,
       returnParam: CATALOGO.accesoRetornoUrlParam,
     });
-    const unlocked = checkoutGranted || hasAccess(PRODUCTO_ACTUAL.accessGrantId);
+    const user = await getCurrentUser().catch(() => null);
+    const adminUnlocked = isAdminUser(user);
+    const unlocked = checkoutGranted || hasAccess(PRODUCTO_ACTUAL.accessGrantId) || adminUnlocked;
 
     if (checkoutGranted) {
       saveEntitlementForCurrentUser(PRODUCTO_ACTUAL.accessGrantId).catch(() => {
@@ -169,7 +212,7 @@ async function init() {
       });
     }
 
-    renderStatus(unlocked);
+    renderStatus(unlocked, adminUnlocked);
 
     // Cargar datos del producto
     const product = getProductI18n(getCurrentLang());
