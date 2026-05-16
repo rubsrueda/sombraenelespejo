@@ -11,11 +11,21 @@ const accessStatus = document.getElementById("accessStatus");
 const checkoutSetupHint = document.getElementById("checkoutSetupHint");
 
 function formatPrice(value, currency) {
+  const useDecimals = currency !== "MXN";
   return new Intl.NumberFormat("es-ES", {
     style: "currency",
     currency,
-    maximumFractionDigits: 0,
+    minimumFractionDigits: useDecimals ? 2 : 0,
+    maximumFractionDigits: useDecimals ? 2 : 0,
   }).format(value);
+}
+
+function formatPriceList(item) {
+  if (Array.isArray(item.precios) && item.precios.length > 0) {
+    return item.precios.map((entry) => formatPrice(entry.valor, entry.moneda)).join(" / ");
+  }
+
+  return formatPrice(item.precio, item.moneda);
 }
 
 function createBenefitCard(item, index) {
@@ -38,7 +48,7 @@ function createTierCard(item) {
     : "<button class=\"btn-secondary opacity-70 cursor-not-allowed\" type=\"button\" disabled>Configurar enlace de pago</button>";
 
   article.innerHTML = `
-    <p class="tier-price">${formatPrice(item.precio, item.moneda)}</p>
+    <p class="tier-price">${formatPriceList(item)}</p>
     <h3 class="mt-0 mb-2 text-3xl">${item.nombre}</h3>
     <p class="mb-4">${item.descripcion}</p>
     <p class="mb-4 text-sm text-slate-500">Acceso otorgado: ${item.accessGrantId}</p>

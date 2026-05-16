@@ -10,7 +10,12 @@ export const CATALOGO = {
       nombre: "Sombra en el Espejo",
       moneda: "EUR",
       plataforma: "Stripe",
-      precio: 19,
+      precio: 8.39,
+      precios: [
+        { valor: 8.39, moneda: "EUR" },
+        { valor: 9.75, moneda: "USD" },
+        { valor: 169, moneda: "MXN" },
+      ],
       descripcion:
         "Compra única para habilitar acceso al libro completo en la plataforma.",
       descripcionPublica:
