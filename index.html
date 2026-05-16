@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sombras en el Espejo | Lectura</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="gate" class="gate" aria-hidden="false">
+      <div class="gate-card">
+        <p class="gate-kicker">Edición Digital</p>
+        <h1>Sombras en el Espejo</h1>
+        <p>
+          Un espacio de lectura organizado por secciones para navegar título,
+          palabras clave, dedicatoria, prólogo, bibliografía y capítulos.
+        </p>
+        <button id="enterBtn" class="primary">Ingresar al libro</button>
+      </div>
+    </div>
+
+    <header class="topbar">
+      <div>
+        <p class="kicker">Lectura Interactiva</p>
+        <h1 id="bookTitle">Cargando...</h1>
+        <p id="bookSubtitle" class="subtitle"></p>
+      </div>
+      <div class="topbar-actions">
+        <button id="resetViewBtn" class="ghost">Inicio</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="nav-panel">
+        <nav class="section-nav" aria-label="Secciones del libro">
+          <button class="nav-btn active" data-section="resumen">Resumen</button>
+          <button class="nav-btn" data-section="dedicatoria">Dedicatoria</button>
+          <button class="nav-btn" data-section="prologo">Prólogo</button>
+          <button class="nav-btn" data-section="bibliografia">Bibliografía</button>
+          <button class="nav-btn" data-section="capitulos">Capítulos</button>
+        </nav>
+      </aside>
+
+      <section class="content-panel">
+        <article id="resumen" class="panel active" aria-live="polite">
+          <h2>Palabras clave</h2>
+          <div id="keywordCloud" class="keyword-cloud"></div>
+          <p class="hint">
+            Usa la navegación lateral para acceder a cada sección del libro.
+          </p>
+        </article>
+
+        <article id="dedicatoria" class="panel">
+          <h2>Dedicatoria</h2>
+          <div id="dedicationText" class="prose"></div>
+        </article>
+
+        <article id="prologo" class="panel">
+          <h2>Prólogo</h2>
+          <div id="prologueText" class="prose"></div>
+        </article>
+
+        <article id="bibliografia" class="panel">
+          <h2>Bibliografía</h2>
+          <div id="bibliographyText" class="prose"></div>
+        </article>
+
+        <article id="capitulos" class="panel chapter-panel">
+          <div class="chapter-toolbar">
+            <h2>Capítulos</h2>
+            <input
+              id="chapterSearch"
+              type="search"
+              placeholder="Buscar por título o contenido"
+              aria-label="Buscar capítulos"
+            />
+          </div>
+          <div class="chapter-layout">
+            <aside>
+              <ul id="chapterList" class="chapter-list"></ul>
+            </aside>
+            <section>
+              <h3 id="chapterTitle">Selecciona un capítulo</h3>
+              <div id="chapterBody" class="prose"></div>
+            </section>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>
+        Si no se carga el contenido, abre este proyecto con un servidor local
+        para permitir la lectura del archivo Markdown.
+      </p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
