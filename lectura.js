@@ -1,6 +1,6 @@
 import { CATALOGO, PRODUCTO_ACTUAL } from "./producto-config.js";
 import { applyCheckoutGrantFromUrl, hasAccess } from "./access-control.js";
-import { resolveAccess, saveEntitlementForCurrentUser } from "./entitlements.js";
+import { saveEntitlementForCurrentUser } from "./entitlements.js";
 import { getCurrentLang, getProductI18n, t } from "./i18n.js";
 
 const bookTitle = document.getElementById("bookTitle");
@@ -150,8 +150,20 @@ function renderMiniCatalog() {
 
 async function init() {
   try {
-    applyCheckoutGrantFromUrl();
-    const unlocked = hasAccess();
+    const checkoutGranted = applyCheckoutGrantFromUrl({
+      token: PRODUCTO_ACTUAL.accessGrantToken,
+      grantId: PRODUCTO_ACTUAL.accessGrantId,
+      accessParam: CATALOGO.accesoUrlParam,
+      returnParam: CATALOGO.accesoRetornoUrlParam,
+    });
+    const unlocked = checkoutGranted || hasAccess(PRODUCTO_ACTUAL.accessGrantId);
+
+    if (checkoutGranted) {
+      saveEntitlementForCurrentUser(PRODUCTO_ACTUAL.accessGrantId).catch(() => {
+        // Mantiene acceso local aunque falle la escritura remota.
+      });
+    }
+
     renderStatus(unlocked);
 
     // Cargar datos del producto

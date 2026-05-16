@@ -11,30 +11,30 @@
     <meta property="og:title" content="Lectura | Sombra en el Espejo" />
     <meta property="og:description" content="Lee el libro completo cuando tu acceso esté activo." />
     <meta property="og:url" content="https://rubsrueda.github.io/sombraenelespejo/lectura.html" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              night: "#0f172a",
-              gold: "#d4af37",
-              paper: "#f8fafc",
-            },
-          },
-        },
-      };
-    </script>
+    <link rel="stylesheet" href="tailwind.css" />
     <link rel="stylesheet" href="style.css" />
     <style>
       .tab-btn {
-        @apply px-4 py-2 text-sm font-medium whitespace-nowrap transition-all border-b-2 border-transparent hover:text-night;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        white-space: nowrap;
+        transition: all 220ms ease;
+        border: 0;
+        border-bottom: 2px solid transparent;
+        background: transparent;
+        color: #64748b;
       }
       .tab-btn.active {
-        @apply border-b-gold text-night font-semibold;
+        border-bottom-color: #d4af37;
+        color: #0f172a;
+        font-weight: 600;
       }
       .tab-btn:not(.active) {
-        @apply text-slate-500;
+        color: #64748b;
+      }
+      .tab-btn:hover {
+        color: #0f172a;
       }
     </style>
   </head>

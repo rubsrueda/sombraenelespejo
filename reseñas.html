@@ -11,20 +11,7 @@
     <meta property="og:title" content="Reseñas | Sombra en el Espejo" />
     <meta property="og:description" content="Comunidad de lectores y opiniones verificadas." />
     <meta property="og:url" content="https://rubsrueda.github.io/sombraenelespejo/rese%C3%B1as.html" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              night: "#0f172a",
-              gold: "#d4af37",
-              paper: "#f8fafc",
-            },
-          },
-        },
-      };
-    </script>
+    <link rel="stylesheet" href="tailwind.css" />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body data-page="reviews" class="site-bg text-slate-800">
@@ -49,44 +36,73 @@
       </div>
     </header>
 
-    <main class="mx-auto grid w-full max-w-6xl gap-6 px-4 pb-16 pt-10 md:grid-cols-[1fr_1.2fr] md:px-6">
-      <section class="form-card card-reveal h-fit">
-        <h1 data-i18n="pages.reviews.heading" class="book-h1 mb-2">Sistema de Reseñas</h1>
-        <p data-i18n="pages.reviews.intro" class="mb-4">Solo usuarios autenticados pueden enviar reseñas.</p>
-        <div id="authNotice" class="notice mb-4">
-          <span data-i18n="pages.reviews.authChecking">Verificando autenticación...</span>
-        </div>
+    <main class="mx-auto w-full max-w-6xl px-4 pb-16 pt-10 md:px-6">
+      <section class="reviews-layout">
+        <aside class="form-card card-reveal h-fit reviews-aside">
+          <h1 class="book-h1 mb-2">Opiniones de lectores</h1>
+          <p class="mb-4">Explora reseñas verificadas con sistema de estrellas y publica la tuya.</p>
 
-        <form id="reviewForm" class="grid gap-3" aria-label="Formulario de reseñas">
-          <div>
-            <label data-i18n="pages.reviews.name" for="reviewName">Nombre</label>
-            <input id="reviewName" name="reviewName" type="text" required maxlength="50" />
+          <div class="review-summary-box">
+            <p class="review-summary-label">Valoración media</p>
+            <p id="ratingAverage" class="review-summary-score">0.0</p>
+            <p id="ratingStars" class="stars review-summary-stars">☆☆☆☆☆</p>
+            <p id="ratingCount" class="text-sm text-slate-600">0 valoraciones globales</p>
           </div>
-          <div>
-            <label data-i18n="pages.reviews.rating" for="reviewRating">Valoración</label>
-            <select id="reviewRating" name="reviewRating" required>
-              <option data-i18n="pages.reviews.star5" value="5">5 estrellas</option>
-              <option data-i18n="pages.reviews.star4" value="4">4 estrellas</option>
-              <option data-i18n="pages.reviews.star3" value="3">3 estrellas</option>
-              <option data-i18n="pages.reviews.star2" value="2">2 estrellas</option>
-              <option data-i18n="pages.reviews.star1" value="1">1 estrella</option>
-            </select>
-          </div>
-          <div>
-            <label data-i18n="pages.reviews.comment" for="reviewComment">Comentario</label>
-            <textarea id="reviewComment" name="reviewComment" required maxlength="600"></textarea>
-          </div>
-          <button data-i18n="pages.reviews.submit" type="submit" id="submitReviewBtn" class="btn-main btn-interact">Publicar reseña</button>
-        </form>
-        <p id="reviewFeedback" class="mt-3 text-sm text-slate-600"></p>
-      </section>
 
-      <section class="grid gap-3">
-        <article class="form-card card-reveal delay-1">
-          <h2 data-i18n="pages.reviews.realtimeTitle" class="section-title">Reseñas en tiempo real</h2>
-          <p data-i18n="pages.reviews.realtimeBody">Conectadas con Supabase.</p>
-        </article>
-        <div id="reviewsList" class="grid gap-3"></div>
+          <div id="authNotice" class="notice mt-4">
+            <span data-i18n="pages.reviews.authChecking">Verificando autenticación...</span>
+          </div>
+
+          <section class="write-review-box mt-5">
+            <h2 class="section-title">Escribir opinión del libro</h2>
+            <p class="mb-3">Comparte tu opinión con otros clientes.</p>
+            <button id="openComposerBtn" type="button" class="btn-main btn-interact w-full">Escribir mi opinión</button>
+          </section>
+
+          <form id="reviewForm" class="review-form mt-4 hidden" aria-label="Formulario de reseñas">
+            <div>
+              <label for="reviewName">Nombre público</label>
+              <input id="reviewName" name="reviewName" type="text" required maxlength="50" />
+            </div>
+
+            <div>
+              <label for="reviewTitle">Título de la opinión</label>
+              <input id="reviewTitle" name="reviewTitle" type="text" required maxlength="90" placeholder="Ej. Intenso y adictivo" />
+            </div>
+
+            <div>
+              <label>Valoración</label>
+              <div id="ratingPicker" class="rating-picker" role="radiogroup" aria-label="Valoración en estrellas">
+                <button type="button" class="star-pick" data-value="1" aria-label="1 estrella">★</button>
+                <button type="button" class="star-pick" data-value="2" aria-label="2 estrellas">★</button>
+                <button type="button" class="star-pick" data-value="3" aria-label="3 estrellas">★</button>
+                <button type="button" class="star-pick" data-value="4" aria-label="4 estrellas">★</button>
+                <button type="button" class="star-pick" data-value="5" aria-label="5 estrellas">★</button>
+              </div>
+              <input id="reviewRating" name="reviewRating" type="hidden" value="5" />
+            </div>
+
+            <div>
+              <label for="reviewComment">Opinión</label>
+              <textarea id="reviewComment" name="reviewComment" required maxlength="1200" placeholder="¿Qué te gustó? ¿Qué mejorarías?"></textarea>
+            </div>
+
+            <div class="review-form-actions">
+              <button type="submit" id="submitReviewBtn" class="btn-main btn-interact">Publicar reseña</button>
+              <button type="button" id="cancelComposerBtn" class="btn-secondary">Cancelar</button>
+            </div>
+          </form>
+
+          <p id="reviewFeedback" class="mt-3 text-sm text-slate-600"></p>
+        </aside>
+
+        <section class="grid gap-3">
+          <article class="form-card card-reveal delay-1">
+            <h2 class="section-title">Opiniones destacadas de los Estados Unidos</h2>
+            <button id="translateAllBtn" type="button" class="review-link-btn">Traducir todas las opiniones al Español</button>
+          </article>
+          <div id="reviewsList" class="grid gap-3"></div>
+        </section>
       </section>
     </main>
 

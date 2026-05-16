@@ -23,6 +23,9 @@ export function grantAccess(accessGrantId) {
 }
 
 export function hasAccess(accessGrantId) {
+  if (!accessGrantId) {
+    return false;
+  }
   const state = readState();
   return Boolean(state[accessGrantId]);
 }
@@ -32,7 +35,10 @@ export function applyCheckoutGrantFromUrl({
   grantId,
   accessParam = "access",
   returnParam = "checkout",
-}) {
+} = {}) {
+  if (!token || !grantId) {
+    return false;
+  }
   const url = new URL(window.location.href);
   const accessValue = url.searchParams.get(accessParam);
   const checkoutValue = url.searchParams.get(returnParam);

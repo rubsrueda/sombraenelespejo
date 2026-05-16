@@ -1,0 +1,28 @@
+{
+  "name": "sombraenelespejo",
+  "version": "1.0.0",
+  "description": "Libro sobre la situación actual de las relaciones.",
+  "main": "main.js",
+  "scripts": {
+    "build": "npm run build:css && npm --prefix backend run build",
+    "build:css": "npx @tailwindcss/cli -i ./tailwind.input.css -o ./tailwind.css --minify",
+    "watch:css": "npx @tailwindcss/cli -i ./tailwind.input.css -o ./tailwind.css --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rubsrueda/sombraenelespejo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/rubsrueda/sombraenelespejo/issues"
+  },
+  "homepage": "https://github.com/rubsrueda/sombraenelespejo#readme",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.0",
+    "tailwindcss": "^4.3.0"
+  }
+}
