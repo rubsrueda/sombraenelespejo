@@ -20,6 +20,10 @@ function authReady() {
   });
 }
 
+export async function getCurrentUser() {
+  return authReady();
+}
+
 function entitlementRef(userId, grantId) {
   return doc(db, "users", userId, "entitlements", grantId);
 }

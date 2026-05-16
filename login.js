@@ -37,7 +37,8 @@ function setDisabled(disabled) {
 }
 
 if (!isConfigured || !auth) {
-  loginNotice.textContent = "Firebase no está configurado. Completa firebase-config.js para activar el login.";
+  loginNotice.textContent = "Acceso de cuenta no habilitado en esta versión pública.";
+  authFeedback.textContent = "Modo de navegación abierta: puedes continuar sin iniciar sesión.";
   setDisabled(true);
 } else {
   onAuthStateChanged(auth, (user) => {

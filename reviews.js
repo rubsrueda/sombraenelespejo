@@ -82,7 +82,7 @@ function startRealtimeReviews() {
 }
 
 if (!isConfigured || !auth || !db) {
-  authNotice.textContent = "Firebase no está configurado todavía. Completa firebase-config.js para activar login y reseñas.";
+  authNotice.textContent = "Publicación de reseñas no habilitada en esta versión pública.";
   setFormEnabled(false);
   startRealtimeReviews();
 } else {
