@@ -227,11 +227,11 @@ function extractSections(text) {
     };
   }
 
-  const prologueStart = findIndexByRegex(lines, /^PR[ÓO]LOGO:/i);
+  const prologueStart = findIndexByRegex(lines, /^(\*\*\s*)?PR[ÓO]LOGO:/i);
   const indexStart = findIndexByRegex(lines, /^[ÍI]ndice:\s*$/i, Math.max(0, prologueStart));
-  const firstPartBodyStart = findNthIndexByRegex(lines, /^PARTE\s+I:/i, 2, Math.max(0, indexStart));
+  const firstPartBodyStart = findNthIndexByRegex(lines, /^(\*\*\s*)?PARTE\s+I:/i, 2, Math.max(0, indexStart));
   const bibliographyStart = findIndexByRegex(lines, /^###\s*\*\*Bibliograf[íi]a Consultada\*\*\s*$/i);
-  const epilogueStart = findIndexByRegex(lines, /^Ep[íi]logo:/i, Math.max(0, bibliographyStart));
+  const epilogueStart = findIndexByRegex(lines, /^(\*\*\s*)?Ep[íi]logo:/i, Math.max(0, bibliographyStart));
 
   const safeSlice = (start, end) => {
     if (start < 0) return "";
@@ -268,6 +268,8 @@ function cleanHeading(raw = "") {
   return raw
     .replace(/^#{1,6}\s+/, "")
     .replace(/^[-*]\s+/, "")
+    .replace(/^\*\*\s*/, "")
+    .replace(/\s*\*\*$/, "")
     .trim();
 }
 
