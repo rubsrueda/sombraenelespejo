@@ -1,67 +1,109 @@
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
-import {
-  doc,
-  getDoc,
-  setDoc,
-} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
-import { auth, db, isConfigured, serverTimestamp } from "./firebase-config.js";
-import { hasAccess } from "./access-control.js";
-
-function authReady() {
-  if (!isConfigured || !auth) {
-    return Promise.resolve(null);
-  }
-
-  return new Promise((resolve) => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      unsubscribe();
-      resolve(user);
-    });
-  });
-}
+import { hasAccess, grantAccess } from "./access-control.js";
+import { supabase } from "./supabase-client.js";
 
 export async function getCurrentUser() {
-  return authReady();
+  const { data } = await supabase.auth.getUser();
+  return data.user;
 }
 
-function entitlementRef(userId, grantId) {
-  return doc(db, "users", userId, "entitlements", grantId);
+async function getUsuarioByEmail(email) {
+  const { data } = await supabase
+    .from("af_usuarios")
+    .select("id, email")
+    .eq("email", email)
+    .maybeSingle();
+  return data || null;
+}
+
+async function ensureUsuario(email) {
+  const existing = await getUsuarioByEmail(email);
+  if (existing) {
+    return existing;
+  }
+
+  const { data, error } = await supabase
+    .from("af_usuarios")
+    .upsert([{ email, ultimo_login: new Date().toISOString() }], { onConflict: "email" })
+    .select("id, email")
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
 }
 
 export async function saveEntitlementForCurrentUser(grantId) {
-  if (!isConfigured || !db || !auth) {
+  const user = await getCurrentUser();
+  if (!user?.email) {
     return false;
   }
 
-  const user = await authReady();
-  if (!user) {
+  try {
+    const usuario = await ensureUsuario(user.email);
+
+    const { data: existing } = await supabase
+      .from("af_entitlements")
+      .select("id")
+      .eq("usuario_id", usuario.id)
+      .eq("producto", grantId)
+      .eq("activo", true)
+      .maybeSingle();
+
+    if (!existing) {
+      await supabase.from("af_entitlements").insert([
+        {
+          usuario_id: usuario.id,
+          producto: grantId,
+          activo: true,
+        },
+      ]);
+    }
+
+    await supabase.from("af_compras").insert([
+      {
+        usuario_id: usuario.id,
+        email: user.email,
+        producto: grantId,
+        exito: true,
+        metadata: {
+          origen: "checkout_redirect",
+        },
+      },
+    ]);
+
+    grantAccess(grantId);
+    return true;
+  } catch {
     return false;
   }
-
-  await setDoc(
-    entitlementRef(user.uid, grantId),
-    {
-      grantId,
-      updatedAt: serverTimestamp(),
-    },
-    { merge: true },
-  );
-
-  return true;
 }
 
-export async function hasEntitlementInFirebase(grantId) {
-  if (!isConfigured || !db || !auth) {
+export async function hasEntitlementInSupabase(grantId) {
+  const user = await getCurrentUser();
+  if (!user?.email) {
     return false;
   }
 
-  const user = await authReady();
-  if (!user) {
+  const usuario = await getUsuarioByEmail(user.email);
+  if (!usuario) {
     return false;
   }
 
-  const snapshot = await getDoc(entitlementRef(user.uid, grantId));
-  return snapshot.exists();
+  const { data, error } = await supabase
+    .from("af_entitlements")
+    .select("id")
+    .eq("usuario_id", usuario.id)
+    .eq("producto", grantId)
+    .eq("activo", true)
+    .maybeSingle();
+
+  if (error) {
+    return false;
+  }
+
+  return Boolean(data);
 }
 
 export async function resolveAccess(grantId) {
@@ -70,7 +112,11 @@ export async function resolveAccess(grantId) {
   }
 
   try {
-    return await hasEntitlementInFirebase(grantId);
+    const unlocked = await hasEntitlementInSupabase(grantId);
+    if (unlocked) {
+      grantAccess(grantId);
+    }
+    return unlocked;
   } catch {
     return false;
   }

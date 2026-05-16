@@ -1,5 +1,6 @@
-// Autenticación y registro de usuario con Supabase
 import { supabase } from "./supabase-client.js";
+
+// Autenticación y registro de usuario con Supabase
 
 export async function signInWithEmail(email, password) {
   return await supabase.auth.signInWithPassword({ email, password });
@@ -34,4 +35,12 @@ export async function upsertUsuario({ email, nombre, idioma }) {
   return await supabase.from("af_usuarios").upsert([
     { email, nombre, idioma, ultimo_login: new Date().toISOString() },
   ], { onConflict: ["email"] });
+}
+
+// Recuperación de contraseña por email
+export async function resetPassword(email) {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/login.html`,
+  });
+  return { error };
 }

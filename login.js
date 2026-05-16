@@ -1,4 +1,4 @@
-import { signInWithEmail, signUpWithEmail, signInWithGoogle, signOut, getCurrentUser, upsertUsuario } from "./auth-supabase.js";
+import { signInWithEmail, signUpWithEmail, signInWithGoogle, signOut, getCurrentUser, upsertUsuario, resetPassword } from "./auth-supabase.js";
 
 const loginNotice = document.getElementById("loginNotice");
 const authFeedback = document.getElementById("authFeedback");
@@ -8,6 +8,21 @@ const emailLoginBtn = document.getElementById("emailLoginBtn");
 const emailRegisterBtn = document.getElementById("emailRegisterBtn");
 const userEmail = document.getElementById("userEmail");
 const userPassword = document.getElementById("userPassword");
+const resetPasswordBtn = document.getElementById("resetPasswordBtn");
+// Recuperación de contraseña
+resetPasswordBtn.addEventListener("click", async () => {
+  const email = userEmail.value.trim();
+  if (!email) {
+    authFeedback.textContent = "Introduce tu email para recuperar la contraseña.";
+    return;
+  }
+  const { error } = await resetPassword(email);
+  if (error) {
+    authFeedback.textContent = `No se pudo enviar el correo: ${error.message}`;
+  } else {
+    authFeedback.textContent = "Correo de recuperación enviado. Revisa tu bandeja de entrada.";
+  }
+});
 
 function readCredentials() {
   return {
