@@ -1,6 +1,10 @@
 # sombraenelespejo
 Libro sobre la situación actual de las relaciones.
 
+## Version actual
+
+- v0.1.0
+
 ## Modo actual: GitHub Pages (sin instalaciones adicionales)
 
 Este proyecto esta preparado para ejecutarse como sitio estatico en GitHub Pages.
