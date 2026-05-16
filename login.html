@@ -31,68 +31,72 @@
         <a href="index.html" class="brand-mark">Abel de Ferro</a>
         <button id="mobileMenuBtn" data-i18n="common.menu" class="menu-btn md:hidden" aria-expanded="false" aria-controls="mobileMenu">Menú</button>
         <ul class="hidden items-center gap-2 md:flex">
-          <li><a data-i18n="common.nav.home" class="nav-link" href="index.html#top">Inicio</a></li>
-          <li><a data-i18n="common.nav.synopsis" class="nav-link" href="index.html#sinopsis">Sinopsis</a></li>
-          <li><a class="nav-link" href="resumen.html">Resumen</a></li>
-          <li><a class="nav-link" href="prologo.html">Prólogo</a></li>
-          <li><a data-i18n="common.nav.fullReading" class="nav-link" href="lectura.html">Lectura Completa</a></li>
-          <li><a data-i18n="common.nav.epilogue" class="nav-link" href="epilogo.html">Epílogo</a></li>
-          <li><a data-i18n="common.nav.reviews" class="nav-link" href="reseñas.html">Reseñas</a></li>
-          <li><a data-i18n="common.nav.buy" class="nav-link" href="ventas.html">Comprar</a></li>
-          <li><a data-i18n="common.nav.login" class="nav-link" href="login.html">Login</a></li>
+          <li><a class="nav-link" href="index.html">Inicio</a></li>
+          <li><a class="nav-link" href="autor.html">Autor</a></li>
+          <li><a class="nav-link" href="ventas.html">Libros</a></li>
+          <li><a class="nav-link" href="reseñas.html">Resenas</a></li>
+          <li><a class="nav-link" href="login.html">Login</a></li>
         </ul>
       </nav>
       <div id="mobileMenu" class="mx-auto hidden w-full max-w-6xl px-4 pb-4 md:hidden">
-        <a data-i18n="common.nav.home" class="mobile-link" href="index.html#top">Inicio</a>
-        <a data-i18n="common.nav.synopsis" class="mobile-link" href="index.html#sinopsis">Sinopsis</a>
-        <a class="mobile-link" href="resumen.html">Resumen</a>
-        <a class="mobile-link" href="prologo.html">Prólogo</a>
-        <a data-i18n="common.nav.fullReading" class="mobile-link" href="lectura.html">Lectura Completa</a>
-        <a data-i18n="common.nav.epilogue" class="mobile-link" href="epilogo.html">Epílogo</a>
-        <a data-i18n="common.nav.reviews" class="mobile-link" href="reseñas.html">Reseñas</a>
-        <a data-i18n="common.nav.buy" class="mobile-link" href="ventas.html">Comprar</a>
-        <a data-i18n="common.nav.login" class="mobile-link" href="login.html">Login</a>
+        <a class="mobile-link" href="index.html">Inicio</a>
+        <a class="mobile-link" href="autor.html">Autor</a>
+        <a class="mobile-link" href="ventas.html">Libros</a>
+        <a class="mobile-link" href="reseñas.html">Resenas</a>
+        <a class="mobile-link" href="login.html">Login</a>
       </div>
     </header>
 
-    <main class="mx-auto w-full max-w-4xl px-4 pb-16 pt-10 md:px-6">
-      <section class="form-card card-reveal">
-        <h1 data-i18n="pages.login.heading" class="book-h1 mb-2">Acceso de Lectores</h1>
-        <p data-i18n="pages.login.intro" class="mb-4">Inicia sesión para publicar reseñas y participar en la comunidad.</p>
 
-        <div id="loginNotice" data-i18n="pages.login.notice" class="notice mb-4">
+    <main class="mx-auto w-full max-w-md px-4 pb-16 pt-10 md:px-0 flex flex-col items-center justify-center min-h-[80vh]">
+      <section class="form-card card-reveal w-full shadow-xl">
+        <h1 data-i18n="pages.login.heading" class="book-h1 mb-2 text-center">Acceso de Lectores</h1>
+        <p data-i18n="pages.login.intro" class="mb-4 text-center">Inicia sesión para publicar reseñas y participar en la comunidad.</p>
+
+        <div id="loginNotice" data-i18n="pages.login.notice" class="notice mb-4 text-center">
           Si no tienes cuenta, puedes registrarte con email y contraseña.
         </div>
 
-        <div class="mb-4 flex flex-wrap gap-3">
-          <button id="googleLoginBtn" data-i18n="pages.login.google" class="btn-main btn-interact" type="button">Entrar con Google</button>
-          <button id="facebookLoginBtn" class="btn-secondary btn-interact" type="button">Entrar con Facebook</button>
-          <button id="xLoginBtn" class="btn-secondary btn-interact" type="button">Entrar con X</button>
-          <button id="tiktokOriginBtn" class="btn-secondary btn-interact" type="button">Vengo de TikTok</button>
-          <button id="redditOriginBtn" class="btn-secondary btn-interact" type="button">Vengo de Reddit</button>
-          <button id="logoutBtn" data-i18n="pages.login.logout" class="btn-danger btn-interact" type="button">Cerrar sesión</button>
+        <div class="mb-6 flex flex-col gap-3">
+          <button id="googleLoginBtn" data-i18n="pages.login.google" class="btn-main btn-interact flex items-center justify-center gap-2" type="button">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" alt="Google" class="h-5 w-5" />
+            Entrar con Google
+          </button>
+          <button id="facebookLoginBtn" class="btn-secondary btn-interact flex items-center justify-center gap-2" type="button">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/facebook/facebook-original.svg" alt="Facebook" class="h-5 w-5" />
+            Entrar con Facebook
+          </button>
+          <button id="xLoginBtn" class="btn-secondary btn-interact flex items-center justify-center gap-2" type="button">
+            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.53 2.477h3.934l-8.59 9.81 10.12 13.236h-7.96l-6.23-8.19-7.13 8.19H.74l9.16-10.47L0 2.477h8.09l5.44 7.18 6.13-7.18zm-1.36 18.13h2.18L7.1 4.36H4.8l11.37 16.247z"/></svg>
+            Entrar con X
+          </button>
+          <div class="flex flex-row gap-2 justify-center">
+            <button id="tiktokOriginBtn" class="btn-secondary btn-interact px-3 py-1 text-xs" type="button">Vengo de TikTok</button>
+            <button id="redditOriginBtn" class="btn-secondary btn-interact px-3 py-1 text-xs" type="button">Vengo de Reddit</button>
+          </div>
+          <button id="logoutBtn" data-i18n="pages.login.logout" class="btn-danger btn-interact w-full" type="button">Cerrar sesión</button>
         </div>
 
         <form id="emailAuthForm" class="grid gap-3">
           <div>
             <label data-i18n="pages.login.email" for="userEmail">Email</label>
-            <input id="userEmail" type="email" required />
+            <input id="userEmail" type="email" required autocomplete="username" />
           </div>
           <div>
             <label data-i18n="pages.login.password" for="userPassword">Contraseña</label>
-            <input id="userPassword" type="password" required minlength="6" />
+            <input id="userPassword" type="password" required minlength="6" autocomplete="current-password" />
           </div>
-          <div class="flex flex-wrap gap-3">
-            <button id="emailLoginBtn" data-i18n="pages.login.loginEmail" class="btn-secondary btn-interact" type="button">Entrar con Email</button>
-            <button id="emailRegisterBtn" data-i18n="pages.login.createAccount" class="btn-main btn-interact" type="button">Crear cuenta</button>
+          <div class="flex flex-col md:flex-row gap-3">
+            <button id="emailLoginBtn" data-i18n="pages.login.loginEmail" class="btn-secondary btn-interact w-full" type="button">Entrar con Email</button>
+            <button id="emailRegisterBtn" data-i18n="pages.login.createAccount" class="btn-main btn-interact w-full" type="button">Crear cuenta</button>
           </div>
-          <div class="mt-2">
+          <div class="mt-2 text-center">
             <button id="resetPasswordBtn" data-i18n="pages.login.forgot" class="btn-link text-xs text-blue-700 hover:underline" type="button">¿Olvidaste tu contraseña?</button>
           </div>
         </form>
 
-        <p id="authFeedback" class="mt-3 text-sm text-slate-600"></p>
-        <p class="mt-3 text-sm text-slate-700">
+        <p id="authFeedback" class="mt-3 text-sm text-center text-slate-600"></p>
+        <p class="mt-3 text-sm text-center text-slate-700">
           Acceso interno: <a href="admin-afiliados.html" class="underline">Panel admin de afiliados</a>
         </p>
       </section>

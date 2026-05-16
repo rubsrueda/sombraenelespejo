@@ -33,27 +33,19 @@
         <a href="index.html" class="brand-mark">Abel de Ferro</a>
         <button id="mobileMenuBtn" data-i18n="common.menu" class="menu-btn md:hidden" aria-expanded="false" aria-controls="mobileMenu">Menú</button>
         <ul class="hidden items-center gap-2 md:flex">
-          <li><a data-i18n="common.nav.home" class="nav-link" href="index.html#top">Inicio</a></li>
-          <li><a data-i18n="common.nav.synopsis" class="nav-link" href="index.html#sinopsis">Sinopsis</a></li>
-          <li><a class="nav-link" href="resumen.html">Resumen</a></li>
-          <li><a class="nav-link" href="prologo.html">Prólogo</a></li>
-          <li><a data-i18n="common.nav.fullReading" class="nav-link" href="lectura.html">Lectura Completa</a></li>
-          <li><a data-i18n="common.nav.epilogue" class="nav-link" href="epilogo.html">Epílogo</a></li>
-          <li><a data-i18n="common.nav.reviews" class="nav-link" href="reseñas.html">Reseñas</a></li>
-          <li><a data-i18n="common.nav.buy" class="nav-link" href="ventas.html">Comprar</a></li>
-          <li><a data-i18n="common.nav.login" class="nav-link" href="login.html">Login</a></li>
+          <li><a class="nav-link" href="index.html">Inicio</a></li>
+          <li><a class="nav-link" href="autor.html">Autor</a></li>
+          <li><a class="nav-link" href="ventas.html">Libros</a></li>
+          <li><a class="nav-link" href="reseñas.html">Resenas</a></li>
+          <li><a class="nav-link" href="login.html">Login</a></li>
         </ul>
       </nav>
       <div id="mobileMenu" class="mx-auto hidden w-full max-w-6xl px-4 pb-4 md:hidden">
-        <a data-i18n="common.nav.home" class="mobile-link" href="index.html#top">Inicio</a>
-        <a data-i18n="common.nav.synopsis" class="mobile-link" href="index.html#sinopsis">Sinopsis</a>
-        <a class="mobile-link" href="resumen.html">Resumen</a>
-        <a class="mobile-link" href="prologo.html">Prólogo</a>
-        <a data-i18n="common.nav.fullReading" class="mobile-link" href="lectura.html">Lectura Completa</a>
-        <a data-i18n="common.nav.epilogue" class="mobile-link" href="epilogo.html">Epílogo</a>
-        <a data-i18n="common.nav.reviews" class="mobile-link" href="reseñas.html">Reseñas</a>
-        <a data-i18n="common.nav.buy" class="mobile-link" href="ventas.html">Comprar</a>
-        <a data-i18n="common.nav.login" class="mobile-link" href="login.html">Login</a>
+        <a class="mobile-link" href="index.html">Inicio</a>
+        <a class="mobile-link" href="autor.html">Autor</a>
+        <a class="mobile-link" href="ventas.html">Libros</a>
+        <a class="mobile-link" href="reseñas.html">Resenas</a>
+        <a class="mobile-link" href="login.html">Login</a>
       </div>
     </header>
 
@@ -96,11 +88,16 @@
         <p data-i18n="pages.lectura.lockedBody" class="mb-4">
           Para desbloquear el libro completo, realiza la compra y vuelve a esta sección.
         </p>
+        <div id="catalogList" class="catalog-mini mb-4"></div>
         <a data-i18n="common.actions.goToBuy" href="ventas.html" class="btn-main btn-interact inline-flex">Ir a Comprar</a>
       </section>
 
       <section id="readerPanel" class="mt-6 content-card card-reveal delay-3 hidden">
         <h2 data-i18n="pages.lectura.fullTextTitle" class="section-title">Texto completo</h2>
+        <div id="readingProgressWrap" class="progress-wrap hidden" aria-live="polite">
+          <div class="progress-track"><div id="readingProgressBar" class="progress-bar"></div></div>
+          <p id="readingProgressText" class="progress-text">0% leído</p>
+        </div>
         <div id="readerContent" class="max-h-[70vh] overflow-auto whitespace-pre-wrap leading-relaxed"></div>
       </section>
     </main>

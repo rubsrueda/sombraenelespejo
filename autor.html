@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Autor | Abel de Ferro</title>
+    <meta name="description" content="Perfil oficial del autor Abel de Ferro: voz, biografia curada, identidad visual y obras." />
+    <meta name="robots" content="index,follow" />
+    <link rel="canonical" href="https://rubsrueda.github.io/sombraenelespejo/autor.html" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              night: "#0f172a",
+              gold: "#d4af37",
+              paper: "#f8fafc",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="site-bg text-slate-800">
+    <header class="sticky top-0 z-50 border-b border-slate-200/70 bg-paper/90 backdrop-blur">
+      <nav class="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 md:px-6" aria-label="Principal">
+        <a href="index.html" class="brand-mark">Abel de Ferro</a>
+        <button id="mobileMenuBtn" class="menu-btn md:hidden" aria-expanded="false" aria-controls="mobileMenu">Menu</button>
+        <ul class="hidden items-center gap-2 md:flex">
+          <li><a class="nav-link" href="index.html">Inicio</a></li>
+          <li><a class="nav-link" href="autor.html">Autor</a></li>
+          <li><a class="nav-link" href="ventas.html">Libros</a></li>
+          <li><a class="nav-link" href="reseñas.html">Resenas</a></li>
+          <li><a class="nav-link" href="login.html">Login</a></li>
+        </ul>
+      </nav>
+      <div id="mobileMenu" class="mx-auto hidden w-full max-w-6xl px-4 pb-4 md:hidden">
+        <a class="mobile-link" href="index.html">Inicio</a>
+        <a class="mobile-link" href="autor.html">Autor</a>
+        <a class="mobile-link" href="ventas.html">Libros</a>
+        <a class="mobile-link" href="reseñas.html">Resenas</a>
+        <a class="mobile-link" href="login.html">Login</a>
+      </div>
+    </header>
+
+    <main class="mx-auto w-full max-w-6xl px-4 pb-16 pt-10 md:px-6">
+      <section class="content-card card-reveal">
+        <p class="eyebrow">Alias Literario</p>
+        <h1 class="book-h1 mb-2">Abel de Ferro</h1>
+        <p class="tagline">Historias para quienes no aceptan la mentira como destino.</p>
+        <p>
+          Bajo el nombre de Abel de Ferro, el autor explora los rincones mas tensos
+          del thriller psicologico y la violencia invisible en relaciones de poder.
+          Su mision narrativa es convertir lo indecible en lenguaje claro, util y humano.
+        </p>
+      </section>
+
+      <section class="mt-6 grid gap-6 md:grid-cols-[220px_1fr]">
+        <article class="content-card card-reveal delay-1">
+          <h2 class="section-title">Identidad Visual</h2>
+          <div class="author-avatar" aria-hidden="true">LF</div>
+          <p class="mt-3 text-sm text-slate-600">Monograma editorial del alias.</p>
+        </article>
+
+        <article class="content-card card-reveal delay-2">
+          <h2 class="section-title">Biografia Curada</h2>
+          <p>
+            Abel de Ferro escribe en tercera persona para preservar distancia narrativa
+            y foco editorial. Su obra se centra en dinamicas de control, trauma relacional
+            y reconstruccion de la dignidad. Mantiene una voz directa, analitica y literaria,
+            con especial cuidado por la verdad factual y la claridad conceptual.
+          </p>
+          <p class="mt-3">
+            Vive en una ciudad lluviosa, escribe de madrugada y colecciona maquinas de
+            escribir antiguas. Cada libro busca abrir conversacion donde el silencio suele
+            imponerse.
+          </p>
+        </article>
+      </section>
+
+      <section class="mt-6 content-card card-reveal delay-3">
+        <h2 class="section-title">Obras</h2>
+        <p class="mb-3">Titulos publicados bajo este alias:</p>
+        <div class="flex flex-wrap gap-3">
+          <a href="ventas.html" class="btn-main btn-interact inline-flex">Sombra en el Espejo</a>
+        </div>
+      </section>
+
+      <section class="mt-6 content-card card-reveal delay-2">
+        <h2 class="section-title">Newsletter y Contacto</h2>
+        <p>
+          Para novedades editoriales y lanzamientos, escribe a:
+          <a href="mailto:contacto@abeldeferro.com" class="underline">contacto@abeldeferro.com</a>
+        </p>
+      </section>
+    </main>
+
+    <script type="module" src="i18n-init.js"></script>
+    <script type="module" src="main.js"></script>
+  </body>
+</html>

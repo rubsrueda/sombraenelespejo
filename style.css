@@ -286,6 +286,61 @@ textarea {
   font-weight: 600;
 }
 
+.catalog-mini {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.mini-book-card {
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 10px;
+  background: rgba(248, 250, 252, 0.78);
+  padding: 0.8rem;
+}
+
+.mini-book-card h3 {
+  margin: 0;
+  font-size: 1.03rem;
+}
+
+.mini-book-price {
+  margin-top: 0.2rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.mini-book-link {
+  display: inline-flex;
+  margin-top: 0.35rem;
+  font-weight: 700;
+  color: #1d4ed8;
+}
+
+.progress-wrap {
+  margin-bottom: 0.8rem;
+}
+
+.progress-track {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #d4af37, #f59e0b);
+  transition: width 260ms ease;
+}
+
+.progress-text {
+  margin-top: 0.35rem;
+  font-size: 0.9rem;
+  color: #334155;
+  font-weight: 600;
+}
+
 .card-reveal {
   opacity: 0;
   transform: translateY(16px);
