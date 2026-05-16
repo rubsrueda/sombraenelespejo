@@ -51,6 +51,25 @@ function normalizeEmail(email) {
   return value;
 }
 
+function getSessionEmailFallback() {
+  try {
+    const keys = Object.keys(localStorage || {});
+    const authKey = keys.find((key) => key.includes("-auth-token"));
+    if (!authKey) {
+      return "";
+    }
+    const raw = localStorage.getItem(authKey);
+    if (!raw) {
+      return "";
+    }
+    const parsed = JSON.parse(raw);
+    const email = parsed?.user?.email || parsed?.currentSession?.user?.email || "";
+    return normalizeEmail(email);
+  } catch {
+    return "";
+  }
+}
+
 function hasAdminRole(rawRole) {
   if (typeof rawRole === "string") {
     const normalized = rawRole.trim().toLowerCase();
@@ -63,7 +82,7 @@ function hasAdminRole(rawRole) {
 }
 
 function isAdminUser(user) {
-  const email = normalizeEmail(user?.email);
+  const email = normalizeEmail(user?.email) || getSessionEmailFallback();
   if (!email) {
     return false;
   }
@@ -567,7 +586,7 @@ async function init() {
     const user = await getCurrentUser().catch(() => null);
     const adminUnlocked = isAdminUser(user);
     const unlocked = checkoutGranted || hasAccess(PRODUCTO_ACTUAL.accessGrantId) || adminUnlocked;
-    const userKey = normalizeEmail(user?.email) || "anon";
+    const userKey = normalizeEmail(user?.email) || getSessionEmailFallback() || "anon";
     readingState.progressEntryKey = `${PRODUCTO_ACTUAL.accessGrantId}::${userKey}`;
     readingState.unlocked = unlocked;
 
