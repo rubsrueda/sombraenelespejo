@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lectura Completa | Abel de Ferro</title>
+    <meta name="description" content="Acceso de lectura completa de Sombra en el Espejo para usuarios con compra activa." />
+    <meta name="robots" content="index,follow" />
+    <link rel="canonical" href="https://rubsrueda.github.io/sombraenelespejo/lectura.html" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Lectura Completa | Sombra en el Espejo" />
+    <meta property="og:description" content="Lee el contenido completo del libro cuando tu acceso esté activo." />
+    <meta property="og:url" content="https://rubsrueda.github.io/sombraenelespejo/lectura.html" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              night: "#0f172a",
+              gold: "#d4af37",
+              paper: "#f8fafc",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body data-page="lectura" class="site-bg text-slate-800">
+    <header class="sticky top-0 z-50 border-b border-slate-200/70 bg-paper/90 backdrop-blur">
+      <nav class="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 md:px-6" aria-label="Principal">
+        <a href="autor.html" class="brand-mark">Abel de Ferro</a>
+        <button id="mobileMenuBtn" data-i18n="common.menu" class="menu-btn md:hidden" aria-expanded="false" aria-controls="mobileMenu">Menú</button>
+        <ul class="hidden items-center gap-2 md:flex">
+          <li><a class="nav-link" href="index.html">Inicio</a></li>
+          <li><a class="nav-link" href="autor.html">Autor</a></li>
+          <li><a class="nav-link" href="ventas.html">Libros</a></li>
+          <li><a class="nav-link" href="reseñas.html">Resenas</a></li>
+          <li><a class="nav-link" href="login.html">Login</a></li>
+        </ul>
+      </nav>
+      <div id="mobileMenu" class="mx-auto hidden w-full max-w-6xl px-4 pb-4 md:hidden">
+        <a class="mobile-link" href="index.html">Inicio</a>
+        <a class="mobile-link" href="autor.html">Autor</a>
+        <a class="mobile-link" href="ventas.html">Libros</a>
+        <a class="mobile-link" href="reseñas.html">Resenas</a>
+        <a class="mobile-link" href="login.html">Login</a>
+      </div>
+    </header>
+
+    <main class="mx-auto w-full max-w-6xl px-4 pb-16 pt-10 md:px-6">
+      <section class="content-card card-reveal">
+        <p data-i18n="pages.lectura.eyebrow" class="eyebrow">Contenido protegido</p>
+        <h1 data-i18n="pages.lectura.heading" class="book-h1 mb-2">Lectura Completa</h1>
+        <div id="readingAccessStatus" class="notice mt-3"></div>
+      </section>
+
+      <section class="mt-6 content-card card-reveal delay-1">
+        <h2 data-i18n="pages.lectura.descriptionTitle" class="section-title">Descripción del Libro</h2>
+        <p id="publicDescription"></p>
+      </section>
+
+      <section class="mt-6 grid gap-6 md:grid-cols-2">
+        <article class="content-card card-reveal delay-2">
+          <h2 data-i18n="pages.lectura.prologueTitle" class="section-title">Prólogo (vista pública)</h2>
+          <div id="publicPrologue" class="whitespace-pre-wrap"></div>
+        </article>
+        <article class="content-card card-reveal delay-3">
+          <h2 data-i18n="pages.lectura.epilogueTitle" class="section-title">Epílogo (vista pública)</h2>
+          <div id="publicEpilogue" class="whitespace-pre-wrap"></div>
+        </article>
+      </section>
+
+      <section class="mt-6 grid gap-6 md:grid-cols-2">
+        <article class="content-card card-reveal delay-2">
+          <h2 class="section-title">Índice</h2>
+          <div id="publicIndex" class="whitespace-pre-wrap"></div>
+        </article>
+        <article class="content-card card-reveal delay-3">
+          <h2 class="section-title">Bibliografía</h2>
+          <div id="publicBibliography" class="whitespace-pre-wrap"></div>
+        </article>
+      </section>
+
+      <section id="lockedPanel" class="mt-6 content-card card-reveal delay-2">
+        <h2 data-i18n="pages.lectura.lockedTitle" class="section-title">Acceso no habilitado</h2>
+        <p data-i18n="pages.lectura.lockedBody" class="mb-4">
+          Para desbloquear el libro completo, realiza la compra y vuelve a esta sección.
+        </p>
+        <div id="catalogList" class="catalog-mini mb-4"></div>
+        <a data-i18n="common.actions.goToBuy" href="ventas.html" class="btn-main btn-interact inline-flex">Ir a Comprar</a>
+      </section>
+
+      <section id="readerPanel" class="mt-6 content-card card-reveal delay-3 hidden">
+        <h2 data-i18n="pages.lectura.fullTextTitle" class="section-title">Texto completo</h2>
+        <div id="readingProgressWrap" class="progress-wrap hidden" aria-live="polite">
+          <div class="progress-track"><div id="readingProgressBar" class="progress-bar"></div></div>
+          <p id="readingProgressText" class="progress-text">0% leído</p>
+        </div>
+        <div id="readerContent" class="max-h-[70vh] overflow-auto whitespace-pre-wrap leading-relaxed"></div>
+      </section>
+    </main>
+
+    <script type="module" src="i18n-init.js"></script>
+    <script type="module" src="main.js"></script>
+    <script type="module" src="lectura.js"></script>
+  </body>
+</html>

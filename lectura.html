@@ -3,13 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lectura Completa | Abel de Ferro</title>
-    <meta name="description" content="Acceso de lectura completa de Sombra en el Espejo para usuarios con compra activa." />
+    <title>Lectura | Abel de Ferro</title>
+    <meta name="description" content="Lee Sombra en el Espejo. Acceso completo con compra activa." />
     <meta name="robots" content="index,follow" />
     <link rel="canonical" href="https://rubsrueda.github.io/sombraenelespejo/lectura.html" />
     <meta property="og:type" content="article" />
-    <meta property="og:title" content="Lectura Completa | Sombra en el Espejo" />
-    <meta property="og:description" content="Lee el contenido completo del libro cuando tu acceso esté activo." />
+    <meta property="og:title" content="Lectura | Sombra en el Espejo" />
+    <meta property="og:description" content="Lee el libro completo cuando tu acceso esté activo." />
     <meta property="og:url" content="https://rubsrueda.github.io/sombraenelespejo/lectura.html" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -26,10 +26,21 @@
       };
     </script>
     <link rel="stylesheet" href="style.css" />
+    <style>
+      .tab-btn {
+        @apply px-4 py-2 text-sm font-medium whitespace-nowrap transition-all border-b-2 border-transparent hover:text-night;
+      }
+      .tab-btn.active {
+        @apply border-b-gold text-night font-semibold;
+      }
+      .tab-btn:not(.active) {
+        @apply text-slate-500;
+      }
+    </style>
   </head>
   <body data-page="lectura" class="site-bg text-slate-800">
     <header class="sticky top-0 z-50 border-b border-slate-200/70 bg-paper/90 backdrop-blur">
-      <nav class="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 md:px-6" aria-label="Principal">
+      <nav class="mx-auto flex w-full max-w-4xl items-center justify-between px-4 py-3 md:px-6" aria-label="Principal">
         <a href="autor.html" class="brand-mark">Abel de Ferro</a>
         <button id="mobileMenuBtn" data-i18n="common.menu" class="menu-btn md:hidden" aria-expanded="false" aria-controls="mobileMenu">Menú</button>
         <ul class="hidden items-center gap-2 md:flex">
@@ -40,7 +51,7 @@
           <li><a class="nav-link" href="login.html">Login</a></li>
         </ul>
       </nav>
-      <div id="mobileMenu" class="mx-auto hidden w-full max-w-6xl px-4 pb-4 md:hidden">
+      <div id="mobileMenu" class="mx-auto hidden w-full max-w-4xl px-4 pb-4 md:hidden">
         <a class="mobile-link" href="index.html">Inicio</a>
         <a class="mobile-link" href="autor.html">Autor</a>
         <a class="mobile-link" href="ventas.html">Libros</a>
@@ -49,56 +60,33 @@
       </div>
     </header>
 
-    <main class="mx-auto w-full max-w-6xl px-4 pb-16 pt-10 md:px-6">
+    <main class="mx-auto w-full max-w-4xl px-4 pb-16 pt-6 md:px-6">
+      <!-- Encabezado con título y descripción -->
       <section class="content-card card-reveal">
-        <p data-i18n="pages.lectura.eyebrow" class="eyebrow">Contenido protegido</p>
-        <h1 data-i18n="pages.lectura.heading" class="book-h1 mb-2">Lectura Completa</h1>
-        <div id="readingAccessStatus" class="notice mt-3"></div>
+        <h1 id="bookTitle" class="book-h1 mb-3"></h1>
+        <p id="bookDescription" class="text-base leading-relaxed"></p>
+        <div id="readingAccessStatus" class="notice mt-4"></div>
       </section>
 
-      <section class="mt-6 content-card card-reveal delay-1">
-        <h2 data-i18n="pages.lectura.descriptionTitle" class="section-title">Descripción del Libro</h2>
-        <p id="publicDescription"></p>
+      <!-- Navegación por tabs -->
+      <nav id="contentNav" class="mt-8 flex gap-2 overflow-x-auto border-b border-slate-200 pb-2" aria-label="Secciones">
+        <!-- Los tabs se generan dinámicamente en lectura.js -->
+      </nav>
+
+      <!-- Contenido dinámico (una sección a la vez) -->
+      <section id="contentPanel" class="mt-6 content-card card-reveal">
+        <!-- El contenido de la sección activa aparece aquí -->
+        <div id="sectionContent" class="whitespace-pre-wrap leading-relaxed"></div>
       </section>
 
-      <section class="mt-6 grid gap-6 md:grid-cols-2">
-        <article class="content-card card-reveal delay-2">
-          <h2 data-i18n="pages.lectura.prologueTitle" class="section-title">Prólogo (vista pública)</h2>
-          <div id="publicPrologue" class="whitespace-pre-wrap"></div>
-        </article>
-        <article class="content-card card-reveal delay-3">
-          <h2 data-i18n="pages.lectura.epilogueTitle" class="section-title">Epílogo (vista pública)</h2>
-          <div id="publicEpilogue" class="whitespace-pre-wrap"></div>
-        </article>
-      </section>
-
-      <section class="mt-6 grid gap-6 md:grid-cols-2">
-        <article class="content-card card-reveal delay-2">
-          <h2 class="section-title">Índice</h2>
-          <div id="publicIndex" class="whitespace-pre-wrap"></div>
-        </article>
-        <article class="content-card card-reveal delay-3">
-          <h2 class="section-title">Bibliografía</h2>
-          <div id="publicBibliography" class="whitespace-pre-wrap"></div>
-        </article>
-      </section>
-
-      <section id="lockedPanel" class="mt-6 content-card card-reveal delay-2">
+      <!-- Panel de acceso bloqueado (solo si no tiene acceso) -->
+      <section id="lockedPanel" class="mt-6 content-card card-reveal hidden">
         <h2 data-i18n="pages.lectura.lockedTitle" class="section-title">Acceso no habilitado</h2>
         <p data-i18n="pages.lectura.lockedBody" class="mb-4">
           Para desbloquear el libro completo, realiza la compra y vuelve a esta sección.
         </p>
         <div id="catalogList" class="catalog-mini mb-4"></div>
         <a data-i18n="common.actions.goToBuy" href="ventas.html" class="btn-main btn-interact inline-flex">Ir a Comprar</a>
-      </section>
-
-      <section id="readerPanel" class="mt-6 content-card card-reveal delay-3 hidden">
-        <h2 data-i18n="pages.lectura.fullTextTitle" class="section-title">Texto completo</h2>
-        <div id="readingProgressWrap" class="progress-wrap hidden" aria-live="polite">
-          <div class="progress-track"><div id="readingProgressBar" class="progress-bar"></div></div>
-          <p id="readingProgressText" class="progress-text">0% leído</p>
-        </div>
-        <div id="readerContent" class="max-h-[70vh] overflow-auto whitespace-pre-wrap leading-relaxed"></div>
       </section>
     </main>
 
