@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lectura Completa | Sombra en el Espejo</title>
+    <title>Lectura Completa | Abel de Ferro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -23,7 +23,7 @@
   <body class="site-bg text-slate-800">
     <header class="sticky top-0 z-50 border-b border-slate-200/70 bg-paper/90 backdrop-blur">
       <nav class="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 md:px-6" aria-label="Principal">
-        <a href="index.html" class="brand-mark">Sombra en el Espejo</a>
+        <a href="index.html" class="brand-mark">Abel de Ferro</a>
         <button id="mobileMenuBtn" class="menu-btn md:hidden" aria-expanded="false" aria-controls="mobileMenu">Menú</button>
         <ul class="hidden items-center gap-2 md:flex">
           <li><a class="nav-link" href="index.html#top">Inicio</a></li>
@@ -53,7 +53,23 @@
         <div id="readingAccessStatus" class="notice mt-3"></div>
       </section>
 
-      <section id="lockedPanel" class="mt-6 content-card card-reveal delay-1">
+      <section class="mt-6 content-card card-reveal delay-1">
+        <h2 class="section-title">Descripción del Libro</h2>
+        <p id="publicDescription"></p>
+      </section>
+
+      <section class="mt-6 grid gap-6 md:grid-cols-2">
+        <article class="content-card card-reveal delay-2">
+          <h2 class="section-title">Prólogo (vista pública)</h2>
+          <div id="publicPrologue" class="whitespace-pre-wrap"></div>
+        </article>
+        <article class="content-card card-reveal delay-3">
+          <h2 class="section-title">Epílogo (vista pública)</h2>
+          <div id="publicEpilogue" class="whitespace-pre-wrap"></div>
+        </article>
+      </section>
+
+      <section id="lockedPanel" class="mt-6 content-card card-reveal delay-2">
         <h2 class="section-title">Acceso no habilitado</h2>
         <p class="mb-4">
           Para desbloquear el libro completo, realiza la compra y vuelve a esta sección.
@@ -61,7 +77,7 @@
         <a href="ventas.html" class="btn-main btn-interact inline-flex">Ir a Comprar</a>
       </section>
 
-      <section id="readerPanel" class="mt-6 content-card card-reveal delay-2 hidden">
+      <section id="readerPanel" class="mt-6 content-card card-reveal delay-3 hidden">
         <h2 class="section-title">Texto completo</h2>
         <div id="readerContent" class="max-h-[70vh] overflow-auto whitespace-pre-wrap leading-relaxed"></div>
       </section>

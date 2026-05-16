@@ -1,5 +1,6 @@
 import { CATALOGO, PRODUCTO_ACTUAL } from "./producto-config.js";
 import { applyCheckoutGrantFromUrl, hasAccess } from "./access-control.js";
+import { resolveAccess, saveEntitlementForCurrentUser } from "./entitlements.js";
 
 const benefitsGrid = document.getElementById("benefitsGrid");
 const productTiers = document.getElementById("productTiers");
@@ -48,6 +49,16 @@ function createTierCard(item) {
 }
 
 function renderPage() {
+  const successUrl = new URL("ventas.html", window.location.href);
+  successUrl.search = "";
+  successUrl.hash = "";
+  successUrl.searchParams.set(CATALOGO.accesoRetornoUrlParam, "success");
+
+  const tokenUrl = new URL("ventas.html", window.location.href);
+  tokenUrl.search = "";
+  tokenUrl.hash = "";
+  tokenUrl.searchParams.set(CATALOGO.accesoUrlParam, PRODUCTO_ACTUAL.accessGrantToken);
+
   productTitle.textContent = PRODUCTO_ACTUAL.nombre;
   productSubtitle.textContent = `Producto único activo ahora mismo. Plataforma: ${PRODUCTO_ACTUAL.plataforma}.`;
 
@@ -58,7 +69,13 @@ function renderPage() {
   productTiers.appendChild(createTierCard(PRODUCTO_ACTUAL));
 
   salesTransparencyText.textContent = PRODUCTO_ACTUAL.transparencia;
-  checkoutSetupHint.textContent = `Configura la URL de éxito de checkout para volver a esta página con ?${CATALOGO.accesoRetornoUrlParam}=success o ?${CATALOGO.accesoUrlParam}=${PRODUCTO_ACTUAL.accessGrantToken}.`;
+  checkoutSetupHint.innerHTML = `
+    <strong>Modo GitHub Pages (sin servidor):</strong> en Stripe configura la redirección tras pago exitoso a
+    <br><span class="break-all">${successUrl.toString()}</span>
+    <br><br>Alternativa por token:
+    <br><span class="break-all">${tokenUrl.toString()}</span>
+    <br><br><span class="text-slate-600">El acceso queda guardado en este navegador. Para acceso multi-dispositivo necesitas backend o Firebase.</span>
+  `;
 }
 
 function renderAccessStatus() {
@@ -68,12 +85,28 @@ function renderAccessStatus() {
     : 'Acceso no activo todavía. Completa la compra para habilitar <strong>Lectura Completa</strong>.';
 }
 
-applyCheckoutGrantFromUrl({
+const checkoutGranted = applyCheckoutGrantFromUrl({
   token: PRODUCTO_ACTUAL.accessGrantToken,
   grantId: PRODUCTO_ACTUAL.accessGrantId,
   accessParam: CATALOGO.accesoUrlParam,
   returnParam: CATALOGO.accesoRetornoUrlParam,
 });
 
+if (checkoutGranted) {
+  saveEntitlementForCurrentUser(PRODUCTO_ACTUAL.accessGrantId).catch(() => {
+    // Mantiene acceso local incluso si no hay sesión o Firebase falla.
+  });
+}
+
 renderPage();
 renderAccessStatus();
+
+resolveAccess(PRODUCTO_ACTUAL.accessGrantId)
+  .then((unlocked) => {
+    accessStatus.innerHTML = unlocked
+      ? 'Acceso activo al libro completo. Puedes entrar desde <a href="lectura.html" class="underline">Lectura Completa</a>.'
+      : 'Acceso no activo todavía. Completa la compra para habilitar <strong>Lectura Completa</strong>.';
+  })
+  .catch(() => {
+    renderAccessStatus();
+  });

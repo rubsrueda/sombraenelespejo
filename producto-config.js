@@ -13,10 +13,12 @@ export const CATALOGO = {
       precio: 19,
       descripcion:
         "Compra única para habilitar acceso al libro completo en la plataforma.",
+      descripcionPublica:
+        "Sombra en el Espejo explora la violencia psicológica, la manipulación emocional y la recuperación de la dignidad personal desde una narrativa técnica y testimonial.",
       accessGrantId: "sombraenelespejo-libro-completo",
       accessGrantToken: "sombraenelespejo-completo",
-      enlaceCheckout: "https://buy.stripe.com/REEMPLAZAR_LIBRO",
-      enlaceCheckoutActivo: false,
+      enlaceCheckout: "https://buy.stripe.com/bJecN6eYG8nz6I83S9fjG00",
+      enlaceCheckoutActivo: true,
       beneficios: [
         {
           titulo: "Libro Completo",

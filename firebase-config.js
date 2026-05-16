@@ -7,7 +7,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 import { getFirestore, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 
-const firebaseConfig = {
+const fallbackConfig = {
   apiKey: "REEMPLAZAR_API_KEY",
   authDomain: "REEMPLAZAR_AUTH_DOMAIN",
   projectId: "REEMPLAZAR_PROJECT_ID",
@@ -16,9 +16,24 @@ const firebaseConfig = {
   appId: "REEMPLAZAR_APP_ID",
 };
 
-const isConfigured = !Object.values(firebaseConfig).some((value) =>
-  String(value).startsWith("REEMPLAZAR_"),
-);
+const runtimeConfig = window.__FIREBASE_CONFIG__ || {};
+
+const firebaseConfig = {
+  ...fallbackConfig,
+  ...runtimeConfig,
+};
+
+const requiredKeys = [
+  "apiKey",
+  "authDomain",
+  "projectId",
+  "appId",
+];
+
+const isConfigured = requiredKeys.every((key) => {
+  const value = String(firebaseConfig[key] || "").trim();
+  return value && !value.startsWith("REEMPLAZAR_");
+});
 
 let auth = null;
 let db = null;
