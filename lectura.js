@@ -124,6 +124,28 @@ function findHeadingStart(lines, aliases) {
   return lines.findIndex((line) => matchesAliases(line, aliases));
 }
 
+function findIndexByRegex(lines, regex, from = 0) {
+  for (let index = from; index < lines.length; index += 1) {
+    if (regex.test(lines[index])) {
+      return index;
+    }
+  }
+  return -1;
+}
+
+function findNthIndexByRegex(lines, regex, nth = 1, from = 0) {
+  let matches = 0;
+  for (let index = from; index < lines.length; index += 1) {
+    if (regex.test(lines[index])) {
+      matches += 1;
+      if (matches === nth) {
+        return index;
+      }
+    }
+  }
+  return -1;
+}
+
 function findNextHeading(lines, from) {
   for (let index = from + 1; index < lines.length; index += 1) {
     if (isLikelyHeading(lines[index])) {
@@ -152,6 +174,35 @@ function fallbackBibliography(lines) {
 
 function extractSections(text) {
   const lines = text.replace(/\r/g, "").split("\n");
+
+  const prologueStart = findIndexByRegex(lines, /^PR[ÓO]LOGO:/i);
+  const indexStart = findIndexByRegex(lines, /^[ÍI]ndice:\s*$/i, Math.max(0, prologueStart));
+  const firstPartBodyStart = findNthIndexByRegex(lines, /^PARTE\s+I:/i, 2, Math.max(0, indexStart));
+  const bibliographyStart = findIndexByRegex(lines, /^###\s*\*\*Bibliograf[íi]a Consultada\*\*\s*$/i);
+  const epilogueStart = findIndexByRegex(lines, /^Ep[íi]logo:/i, Math.max(0, bibliographyStart));
+
+  const safeSlice = (start, end) => {
+    if (start < 0) return "";
+    const endIndex = end > start ? end : lines.length;
+    return compact(lines.slice(start, endIndex));
+  };
+
+  const prologue = safeSlice(prologueStart, indexStart);
+  const index = safeSlice(indexStart, firstPartBodyStart);
+  const chapters = safeSlice(firstPartBodyStart, bibliographyStart);
+  const bibliography = safeSlice(bibliographyStart, epilogueStart);
+  const epilogue = safeSlice(epilogueStart, lines.length);
+
+  if (prologue || index || chapters || bibliography || epilogue) {
+    return {
+      prologue: prologue || t("dynamic.lectura.noPrologue"),
+      chapters: chapters || t("dynamic.lectura.noChapters"),
+      epilogue: epilogue || t("dynamic.lectura.noEpilogue"),
+      index: index || "Índice no disponible.",
+      bibliography: bibliography || "Bibliografía no disponible.",
+    };
+  }
+
   return {
     prologue: getSection(lines, "prologue") || t("dynamic.lectura.noPrologue"),
     chapters: getSection(lines, "chapters") || t("dynamic.lectura.noChapters"),
@@ -179,13 +230,18 @@ function renderSectionContent(tab) {
   const articleParts = [];
 
   blocks.forEach((block, index) => {
-    const firstLine = block.split("\n")[0]?.trim() || "";
+    const blockLines = block.split("\n");
+    const firstLine = blockLines[0]?.trim() || "";
+    const remainingLines = blockLines.slice(1).join("\n").trim();
     const normalized = cleanHeading(firstLine);
     const compactBlock = block.replace(/\n+/g, " ").trim();
     const formattedCompact = formatInline(compactBlock);
 
     if (index === 0) {
       articleParts.push(`<h2 class="reading-stage-main-title">${formatInline(normalized || tab.label)}</h2>`);
+      if (remainingLines) {
+        articleParts.push(`<p class="reading-paragraph">${formatInline(remainingLines.replace(/\n+/g, " "))}</p>`);
+      }
       return;
     }
 
