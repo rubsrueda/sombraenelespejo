@@ -20,45 +20,46 @@
     </script>
     <link rel="stylesheet" href="style.css" />
   </head>
-  <body class="site-bg text-slate-800">
+  <body data-page="epilogo" class="site-bg text-slate-800">
     <header class="sticky top-0 z-50 border-b border-slate-200/70 bg-paper/90 backdrop-blur">
       <nav class="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 md:px-6" aria-label="Principal">
         <a href="index.html" class="brand-mark">Abel de Ferro</a>
-        <button id="mobileMenuBtn" class="menu-btn md:hidden" aria-expanded="false" aria-controls="mobileMenu">Menú</button>
+        <button id="mobileMenuBtn" data-i18n="common.menu" class="menu-btn md:hidden" aria-expanded="false" aria-controls="mobileMenu">Menú</button>
         <ul class="hidden items-center gap-2 md:flex">
-          <li><a class="nav-link" href="index.html#top">Inicio</a></li>
-          <li><a class="nav-link" href="index.html#sinopsis">Sinopsis</a></li>
-          <li><a class="nav-link" href="lectura.html">Lectura Completa</a></li>
-          <li><a class="nav-link" href="epilogo.html">Epílogo</a></li>
-          <li><a class="nav-link" href="reseñas.html">Reseñas</a></li>
-          <li><a class="nav-link" href="ventas.html">Comprar</a></li>
-          <li><a class="nav-link" href="login.html">Login</a></li>
+          <li><a data-i18n="common.nav.home" class="nav-link" href="index.html#top">Inicio</a></li>
+          <li><a data-i18n="common.nav.synopsis" class="nav-link" href="index.html#sinopsis">Sinopsis</a></li>
+          <li><a data-i18n="common.nav.fullReading" class="nav-link" href="lectura.html">Lectura Completa</a></li>
+          <li><a data-i18n="common.nav.epilogue" class="nav-link" href="epilogo.html">Epílogo</a></li>
+          <li><a data-i18n="common.nav.reviews" class="nav-link" href="reseñas.html">Reseñas</a></li>
+          <li><a data-i18n="common.nav.buy" class="nav-link" href="ventas.html">Comprar</a></li>
+          <li><a data-i18n="common.nav.login" class="nav-link" href="login.html">Login</a></li>
         </ul>
       </nav>
       <div id="mobileMenu" class="mx-auto hidden w-full max-w-6xl px-4 pb-4 md:hidden">
-        <a class="mobile-link" href="index.html#top">Inicio</a>
-        <a class="mobile-link" href="index.html#sinopsis">Sinopsis</a>
-        <a class="mobile-link" href="lectura.html">Lectura Completa</a>
-        <a class="mobile-link" href="epilogo.html">Epílogo</a>
-        <a class="mobile-link" href="reseñas.html">Reseñas</a>
-        <a class="mobile-link" href="ventas.html">Comprar</a>
-        <a class="mobile-link" href="login.html">Login</a>
+        <a data-i18n="common.nav.home" class="mobile-link" href="index.html#top">Inicio</a>
+        <a data-i18n="common.nav.synopsis" class="mobile-link" href="index.html#sinopsis">Sinopsis</a>
+        <a data-i18n="common.nav.fullReading" class="mobile-link" href="lectura.html">Lectura Completa</a>
+        <a data-i18n="common.nav.epilogue" class="mobile-link" href="epilogo.html">Epílogo</a>
+        <a data-i18n="common.nav.reviews" class="mobile-link" href="reseñas.html">Reseñas</a>
+        <a data-i18n="common.nav.buy" class="mobile-link" href="ventas.html">Comprar</a>
+        <a data-i18n="common.nav.login" class="mobile-link" href="login.html">Login</a>
       </div>
     </header>
 
     <main class="mx-auto w-full max-w-6xl px-4 pb-16 pt-10 md:px-6">
       <section class="content-card card-reveal">
-        <p class="eyebrow">Cierre de obra</p>
-        <h1 class="book-h1 mb-2">Epílogo</h1>
-        <p class="mb-5 text-slate-600">Cargado automáticamente desde el manuscrito principal.</p>
+        <p data-i18n="pages.epilogo.eyebrow" class="eyebrow">Cierre de obra</p>
+        <h1 data-i18n="pages.epilogo.heading" class="book-h1 mb-2">Epílogo</h1>
+        <p data-i18n="pages.epilogo.autoLoad" class="mb-5 text-slate-600">Cargado automáticamente desde el manuscrito principal.</p>
 
         <article>
-          <h2 id="epilogueTitle" class="section-title">Cargando epílogo...</h2>
+          <h2 id="epilogueTitle" data-i18n="pages.epilogo.loading" class="section-title">Cargando epílogo...</h2>
           <div id="epilogueBody" class="whitespace-pre-wrap text-justify"></div>
         </article>
       </section>
     </main>
 
+    <script type="module" src="i18n-init.js"></script>
     <script src="main.js"></script>
     <script type="module" src="epilogo.js"></script>
   </body>

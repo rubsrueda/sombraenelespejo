@@ -1,6 +1,7 @@
 import { CATALOGO, PRODUCTO_ACTUAL } from "./producto-config.js";
 import { applyCheckoutGrantFromUrl, hasAccess } from "./access-control.js";
 import { resolveAccess, saveEntitlementForCurrentUser } from "./entitlements.js";
+import { getCurrentLang, getProductI18n, t } from "./i18n.js";
 
 const benefitsGrid = document.getElementById("benefitsGrid");
 const productTiers = document.getElementById("productTiers");
@@ -12,7 +13,8 @@ const checkoutSetupHint = document.getElementById("checkoutSetupHint");
 
 function formatPrice(value, currency) {
   const useDecimals = currency !== "MXN";
-  return new Intl.NumberFormat("es-ES", {
+  const locale = getCurrentLang() === "es" ? "es-ES" : "en-US";
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
     minimumFractionDigits: useDecimals ? 2 : 0,
@@ -40,18 +42,19 @@ function createBenefitCard(item, index) {
 }
 
 function createTierCard(item) {
+  const localized = getProductI18n(getCurrentLang());
   const article = document.createElement("article");
   article.className = "sales-card card-reveal tier-card";
 
   const cta = item.enlaceCheckoutActivo
-    ? `<a href="${item.enlaceCheckout}" target="_blank" rel="noopener noreferrer" class="btn-main btn-interact inline-flex">Comprar ahora</a>`
-    : "<button class=\"btn-secondary opacity-70 cursor-not-allowed\" type=\"button\" disabled>Configurar enlace de pago</button>";
+    ? `<a href="${item.enlaceCheckout}" target="_blank" rel="noopener noreferrer" class="btn-main btn-interact inline-flex">${t("common.actions.buyNow")}</a>`
+    : `<button class="btn-secondary opacity-70 cursor-not-allowed" type="button" disabled>${t("dynamic.buy.setupCta")}</button>`;
 
   article.innerHTML = `
     <p class="tier-price">${formatPriceList(item)}</p>
-    <h3 class="mt-0 mb-2 text-3xl">${item.nombre}</h3>
-    <p class="mb-4">${item.descripcion}</p>
-    <p class="mb-4 text-sm text-slate-500">Acceso otorgado: ${item.accessGrantId}</p>
+    <h3 class="mt-0 mb-2 text-3xl">${localized.name}</h3>
+    <p class="mb-4">${localized.description}</p>
+    <p class="mb-4 text-sm text-slate-500">${t("dynamic.buy.grantedAccess")}: ${item.accessGrantId}</p>
     ${cta}
   `;
 
@@ -59,6 +62,7 @@ function createTierCard(item) {
 }
 
 function renderPage() {
+  const localized = getProductI18n(getCurrentLang());
   const successUrl = new URL("ventas.html", window.location.href);
   successUrl.search = "";
   successUrl.hash = "";
@@ -69,30 +73,27 @@ function renderPage() {
   tokenUrl.hash = "";
   tokenUrl.searchParams.set(CATALOGO.accesoUrlParam, PRODUCTO_ACTUAL.accessGrantToken);
 
-  productTitle.textContent = PRODUCTO_ACTUAL.nombre;
-  productSubtitle.textContent = `Producto único activo ahora mismo. Plataforma: ${PRODUCTO_ACTUAL.plataforma}.`;
+  productTitle.textContent = localized.name;
+  productSubtitle.textContent = t("dynamic.buy.productSubtitle", { platform: PRODUCTO_ACTUAL.plataforma });
 
-  PRODUCTO_ACTUAL.beneficios.forEach((item, index) => {
+  localized.benefits.forEach((item, index) => {
     benefitsGrid.appendChild(createBenefitCard(item, index));
   });
 
   productTiers.appendChild(createTierCard(PRODUCTO_ACTUAL));
 
-  salesTransparencyText.textContent = PRODUCTO_ACTUAL.transparencia;
-  checkoutSetupHint.innerHTML = `
-    <strong>Modo GitHub Pages (sin servidor):</strong> en Stripe configura la redirección tras pago exitoso a
-    <br><span class="break-all">${successUrl.toString()}</span>
-    <br><br>Alternativa por token:
-    <br><span class="break-all">${tokenUrl.toString()}</span>
-    <br><br><span class="text-slate-600">El acceso queda guardado en este navegador. Para acceso multi-dispositivo necesitas backend o Firebase.</span>
-  `;
+  salesTransparencyText.textContent = localized.transparency;
+  checkoutSetupHint.innerHTML = t("dynamic.buy.checkoutHint", {
+    successUrl: successUrl.toString(),
+    tokenUrl: tokenUrl.toString(),
+  });
 }
 
 function renderAccessStatus() {
   const unlocked = hasAccess(PRODUCTO_ACTUAL.accessGrantId);
   accessStatus.innerHTML = unlocked
-    ? 'Acceso activo al libro completo. Puedes entrar desde <a href="lectura.html" class="underline">Lectura Completa</a>.'
-    : 'Acceso no activo todavía. Completa la compra para habilitar <strong>Lectura Completa</strong>.';
+    ? t("dynamic.buy.activeAccess")
+    : t("dynamic.buy.pendingAccess");
 }
 
 const checkoutGranted = applyCheckoutGrantFromUrl({
@@ -114,9 +115,16 @@ renderAccessStatus();
 resolveAccess(PRODUCTO_ACTUAL.accessGrantId)
   .then((unlocked) => {
     accessStatus.innerHTML = unlocked
-      ? 'Acceso activo al libro completo. Puedes entrar desde <a href="lectura.html" class="underline">Lectura Completa</a>.'
-      : 'Acceso no activo todavía. Completa la compra para habilitar <strong>Lectura Completa</strong>.';
+      ? t("dynamic.buy.activeAccess")
+      : t("dynamic.buy.pendingAccess");
   })
   .catch(() => {
     renderAccessStatus();
   });
+
+window.addEventListener("af:languageChanged", () => {
+  benefitsGrid.innerHTML = "";
+  productTiers.innerHTML = "";
+  renderPage();
+  renderAccessStatus();
+});

@@ -22,61 +22,61 @@
     <script type="module" src="supabase-client.js"></script>
     <script type="module" src="auth-supabase.js"></script>
   </head>
-  <body class="site-bg text-slate-800">
+  <body data-page="login" class="site-bg text-slate-800">
     <header class="sticky top-0 z-50 border-b border-slate-200/70 bg-paper/90 backdrop-blur">
       <nav class="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 md:px-6" aria-label="Principal">
         <a href="index.html" class="brand-mark">Abel de Ferro</a>
-        <button id="mobileMenuBtn" class="menu-btn md:hidden" aria-expanded="false" aria-controls="mobileMenu">Menú</button>
+        <button id="mobileMenuBtn" data-i18n="common.menu" class="menu-btn md:hidden" aria-expanded="false" aria-controls="mobileMenu">Menú</button>
         <ul class="hidden items-center gap-2 md:flex">
-          <li><a class="nav-link" href="index.html#top">Inicio</a></li>
-          <li><a class="nav-link" href="index.html#sinopsis">Sinopsis</a></li>
-          <li><a class="nav-link" href="lectura.html">Lectura Completa</a></li>
-          <li><a class="nav-link" href="epilogo.html">Epílogo</a></li>
-          <li><a class="nav-link" href="reseñas.html">Reseñas</a></li>
-          <li><a class="nav-link" href="ventas.html">Comprar</a></li>
-          <li><a class="nav-link" href="login.html">Login</a></li>
+          <li><a data-i18n="common.nav.home" class="nav-link" href="index.html#top">Inicio</a></li>
+          <li><a data-i18n="common.nav.synopsis" class="nav-link" href="index.html#sinopsis">Sinopsis</a></li>
+          <li><a data-i18n="common.nav.fullReading" class="nav-link" href="lectura.html">Lectura Completa</a></li>
+          <li><a data-i18n="common.nav.epilogue" class="nav-link" href="epilogo.html">Epílogo</a></li>
+          <li><a data-i18n="common.nav.reviews" class="nav-link" href="reseñas.html">Reseñas</a></li>
+          <li><a data-i18n="common.nav.buy" class="nav-link" href="ventas.html">Comprar</a></li>
+          <li><a data-i18n="common.nav.login" class="nav-link" href="login.html">Login</a></li>
         </ul>
       </nav>
       <div id="mobileMenu" class="mx-auto hidden w-full max-w-6xl px-4 pb-4 md:hidden">
-        <a class="mobile-link" href="index.html#top">Inicio</a>
-        <a class="mobile-link" href="index.html#sinopsis">Sinopsis</a>
-        <a class="mobile-link" href="lectura.html">Lectura Completa</a>
-        <a class="mobile-link" href="epilogo.html">Epílogo</a>
-        <a class="mobile-link" href="reseñas.html">Reseñas</a>
-        <a class="mobile-link" href="ventas.html">Comprar</a>
-        <a class="mobile-link" href="login.html">Login</a>
+        <a data-i18n="common.nav.home" class="mobile-link" href="index.html#top">Inicio</a>
+        <a data-i18n="common.nav.synopsis" class="mobile-link" href="index.html#sinopsis">Sinopsis</a>
+        <a data-i18n="common.nav.fullReading" class="mobile-link" href="lectura.html">Lectura Completa</a>
+        <a data-i18n="common.nav.epilogue" class="mobile-link" href="epilogo.html">Epílogo</a>
+        <a data-i18n="common.nav.reviews" class="mobile-link" href="reseñas.html">Reseñas</a>
+        <a data-i18n="common.nav.buy" class="mobile-link" href="ventas.html">Comprar</a>
+        <a data-i18n="common.nav.login" class="mobile-link" href="login.html">Login</a>
       </div>
     </header>
 
     <main class="mx-auto w-full max-w-4xl px-4 pb-16 pt-10 md:px-6">
       <section class="form-card card-reveal">
-        <h1 class="book-h1 mb-2">Acceso de Lectores</h1>
-        <p class="mb-4">Inicia sesión para publicar reseñas y participar en la comunidad.</p>
+        <h1 data-i18n="pages.login.heading" class="book-h1 mb-2">Acceso de Lectores</h1>
+        <p data-i18n="pages.login.intro" class="mb-4">Inicia sesión para publicar reseñas y participar en la comunidad.</p>
 
-        <div id="loginNotice" class="notice mb-4">
+        <div id="loginNotice" data-i18n="pages.login.notice" class="notice mb-4">
           Si no tienes cuenta, puedes registrarte con email y contraseña.
         </div>
 
         <div class="mb-4 flex flex-wrap gap-3">
-          <button id="googleLoginBtn" class="btn-main btn-interact" type="button">Entrar con Google</button>
-          <button id="logoutBtn" class="btn-danger btn-interact" type="button">Cerrar sesión</button>
+          <button id="googleLoginBtn" data-i18n="pages.login.google" class="btn-main btn-interact" type="button">Entrar con Google</button>
+          <button id="logoutBtn" data-i18n="pages.login.logout" class="btn-danger btn-interact" type="button">Cerrar sesión</button>
         </div>
 
         <form id="emailAuthForm" class="grid gap-3">
           <div>
-            <label for="userEmail">Email</label>
+            <label data-i18n="pages.login.email" for="userEmail">Email</label>
             <input id="userEmail" type="email" required />
           </div>
           <div>
-            <label for="userPassword">Contraseña</label>
+            <label data-i18n="pages.login.password" for="userPassword">Contraseña</label>
             <input id="userPassword" type="password" required minlength="6" />
           </div>
           <div class="flex flex-wrap gap-3">
-            <button id="emailLoginBtn" class="btn-secondary btn-interact" type="button">Entrar con Email</button>
-            <button id="emailRegisterBtn" class="btn-main btn-interact" type="button">Crear cuenta</button>
+            <button id="emailLoginBtn" data-i18n="pages.login.loginEmail" class="btn-secondary btn-interact" type="button">Entrar con Email</button>
+            <button id="emailRegisterBtn" data-i18n="pages.login.createAccount" class="btn-main btn-interact" type="button">Crear cuenta</button>
           </div>
           <div class="mt-2">
-            <button id="resetPasswordBtn" class="btn-link text-xs text-blue-700 hover:underline" type="button">¿Olvidaste tu contraseña?</button>
+            <button id="resetPasswordBtn" data-i18n="pages.login.forgot" class="btn-link text-xs text-blue-700 hover:underline" type="button">¿Olvidaste tu contraseña?</button>
           </div>
         </form>
 
@@ -84,6 +84,7 @@
       </section>
     </main>
 
+    <script type="module" src="i18n-init.js"></script>
     <script src="main.js"></script>
     <script type="module" src="login.js"></script>
   </body>

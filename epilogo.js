@@ -1,3 +1,5 @@
+import { getCurrentLang, t } from "./i18n.js";
+
 const epilogueTitle = document.getElementById("epilogueTitle");
 const epilogueBody = document.getElementById("epilogueBody");
 
@@ -10,12 +12,12 @@ function compact(lines) {
 }
 
 function extractEpilogue(lines) {
-  const startIndex = lines.findIndex((line) => /^Epílogo:\s*/i.test(line.trim()));
+  const startIndex = lines.findIndex((line) => /^(EPÍLOGO|EPILOGO|EPILOGUE|EPILOG|ÉPILOGUE|结语):?\s*/i.test(line.trim()));
 
   if (startIndex === -1) {
     return {
-      title: "Epílogo",
-      body: "No se encontró el epílogo en el manuscrito.",
+      title: t("pages.epilogo.heading"),
+      body: t("dynamic.epilogo.noFound"),
     };
   }
 
@@ -35,9 +37,15 @@ function extractEpilogue(lines) {
 
 async function loadEpilogue() {
   try {
-    const response = await fetch("sombraenelespejo.md", { cache: "no-store" });
+    const lang = getCurrentLang();
+    const localizedFile = `sombraenelespejo-${lang}.md`;
+    let response = await fetch(localizedFile, { cache: "no-store" });
     if (!response.ok) {
-      throw new Error("No se pudo leer el manuscrito.");
+      response = await fetch("sombraenelespejo.md", { cache: "no-store" });
+    }
+
+    if (!response.ok) {
+      throw new Error(t("dynamic.epilogo.readError"));
     }
 
     const source = normalize(await response.text());
@@ -47,9 +55,13 @@ async function loadEpilogue() {
     epilogueTitle.textContent = epilogue.title;
     epilogueBody.textContent = epilogue.body;
   } catch (error) {
-    epilogueTitle.textContent = "Epílogo";
-    epilogueBody.textContent = `No se pudo cargar el epílogo: ${error.message}`;
+    epilogueTitle.textContent = t("pages.epilogo.heading");
+    epilogueBody.textContent = t("dynamic.epilogo.loadError", { message: error.message });
   }
 }
 
 loadEpilogue();
+
+window.addEventListener("af:languageChanged", () => {
+  loadEpilogue();
+});

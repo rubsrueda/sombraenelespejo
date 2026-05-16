@@ -1,6 +1,7 @@
 import { CATALOGO, PRODUCTO_ACTUAL } from "./producto-config.js";
 import { applyCheckoutGrantFromUrl, hasAccess } from "./access-control.js";
 import { resolveAccess, saveEntitlementForCurrentUser } from "./entitlements.js";
+import { getCurrentLang, getProductI18n, t } from "./i18n.js";
 
 const statusNode = document.getElementById("readingAccessStatus");
 const lockedPanel = document.getElementById("lockedPanel");
@@ -11,10 +12,18 @@ const publicPrologue = document.getElementById("publicPrologue");
 const publicEpilogue = document.getElementById("publicEpilogue");
 
 async function loadBook() {
-  const response = await fetch("sombraenelespejo.md", { cache: "no-store" });
+  const lang = getCurrentLang();
+  const localizedFile = `sombraenelespejo-${lang}.md`;
+
+  let response = await fetch(localizedFile, { cache: "no-store" });
   if (!response.ok) {
-    throw new Error("No se pudo cargar el libro completo.");
+    response = await fetch("sombraenelespejo.md", { cache: "no-store" });
   }
+
+  if (!response.ok) {
+    throw new Error(t("dynamic.lectura.loadError"));
+  }
+
   return response.text();
 }
 
@@ -25,11 +34,11 @@ function togglePanels(unlocked) {
 
 function renderStatus(unlocked) {
   if (unlocked) {
-    statusNode.textContent = "Acceso activo. Ya puedes leer el contenido completo.";
+    statusNode.textContent = t("dynamic.lectura.active");
     return;
   }
 
-  statusNode.innerHTML = 'Acceso pendiente. Activa tu compra en <a href="ventas.html" class="underline">Comprar</a> para desbloquear esta sección.';
+  statusNode.innerHTML = t("dynamic.lectura.pending");
 }
 
 function compact(lines) {
@@ -45,12 +54,12 @@ function cut(text, max = 1300) {
 
 function extractPublicBlocks(text) {
   const lines = text.replace(/\r/g, "").split("\n");
-  const prologueStart = lines.findIndex((line) => /^PRÓLOGO:/i.test(line.trim()));
+  const prologueStart = lines.findIndex((line) => /^(PRÓLOGO|PROLOGO|PROLOGUE|PROLOG|前言):?/i.test(line.trim()));
   const indexStart = lines.findIndex(
-    (line, index) => index > prologueStart && /^Índice:\s*$/i.test(line.trim()),
+    (line, index) => index > prologueStart && /^(ÍNDICE|INDICE|INDEX|INHALTSVERZEICHNIS|索引):?\s*$/i.test(line.trim()),
   );
 
-  const epilogueStart = lines.findIndex((line) => /^Epílogo:/i.test(line.trim()));
+  const epilogueStart = lines.findIndex((line) => /^(EPÍLOGO|EPILOGO|EPILOGUE|EPILOG|ÉPILOGUE|结语):?/i.test(line.trim()));
   const epilogueEnd = lines.findIndex(
     (line, index) => index > epilogueStart && /^\[\d+\]/.test(line.trim()),
   );
@@ -58,12 +67,12 @@ function extractPublicBlocks(text) {
   const prologue =
     prologueStart !== -1 && indexStart !== -1
       ? compact(lines.slice(prologueStart, indexStart))
-      : "Prólogo no disponible.";
+      : t("dynamic.lectura.noPrologue");
 
   const epilogue =
     epilogueStart !== -1
       ? compact(lines.slice(epilogueStart, epilogueEnd === -1 ? lines.length : epilogueEnd))
-      : "Epílogo no disponible.";
+      : t("dynamic.lectura.noEpilogue");
 
   return {
     prologue: cut(prologue, 1700),
@@ -72,7 +81,8 @@ function extractPublicBlocks(text) {
 }
 
 function renderPublicContent(sourceText) {
-  publicDescription.textContent = PRODUCTO_ACTUAL.descripcionPublica || PRODUCTO_ACTUAL.descripcion;
+  const product = getProductI18n(getCurrentLang());
+  publicDescription.textContent = product.publicDescription;
   const extracted = extractPublicBlocks(sourceText);
   publicPrologue.textContent = extracted.prologue;
   publicEpilogue.textContent = extracted.epilogue;
@@ -98,9 +108,10 @@ async function init() {
     bookText = await loadBook();
     renderPublicContent(bookText);
   } catch (error) {
-    publicDescription.textContent = PRODUCTO_ACTUAL.descripcionPublica || PRODUCTO_ACTUAL.descripcion;
-    publicPrologue.textContent = `Error al cargar prólogo: ${error.message}`;
-    publicEpilogue.textContent = `Error al cargar epílogo: ${error.message}`;
+    const product = getProductI18n(getCurrentLang());
+    publicDescription.textContent = product.publicDescription;
+    publicPrologue.textContent = t("dynamic.lectura.prologueError", { message: error.message });
+    publicEpilogue.textContent = t("dynamic.lectura.epilogueError", { message: error.message });
   }
 
   let unlocked = hasAccess(PRODUCTO_ACTUAL.accessGrantId);
@@ -119,3 +130,7 @@ async function init() {
 }
 
 init();
+
+window.addEventListener("af:languageChanged", () => {
+  init();
+});

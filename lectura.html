@@ -20,69 +20,70 @@
     </script>
     <link rel="stylesheet" href="style.css" />
   </head>
-  <body class="site-bg text-slate-800">
+  <body data-page="lectura" class="site-bg text-slate-800">
     <header class="sticky top-0 z-50 border-b border-slate-200/70 bg-paper/90 backdrop-blur">
       <nav class="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 md:px-6" aria-label="Principal">
         <a href="index.html" class="brand-mark">Abel de Ferro</a>
-        <button id="mobileMenuBtn" class="menu-btn md:hidden" aria-expanded="false" aria-controls="mobileMenu">Menú</button>
+        <button id="mobileMenuBtn" data-i18n="common.menu" class="menu-btn md:hidden" aria-expanded="false" aria-controls="mobileMenu">Menú</button>
         <ul class="hidden items-center gap-2 md:flex">
-          <li><a class="nav-link" href="index.html#top">Inicio</a></li>
-          <li><a class="nav-link" href="index.html#sinopsis">Sinopsis</a></li>
-          <li><a class="nav-link" href="lectura.html">Lectura Completa</a></li>
-          <li><a class="nav-link" href="epilogo.html">Epílogo</a></li>
-          <li><a class="nav-link" href="reseñas.html">Reseñas</a></li>
-          <li><a class="nav-link" href="ventas.html">Comprar</a></li>
-          <li><a class="nav-link" href="login.html">Login</a></li>
+          <li><a data-i18n="common.nav.home" class="nav-link" href="index.html#top">Inicio</a></li>
+          <li><a data-i18n="common.nav.synopsis" class="nav-link" href="index.html#sinopsis">Sinopsis</a></li>
+          <li><a data-i18n="common.nav.fullReading" class="nav-link" href="lectura.html">Lectura Completa</a></li>
+          <li><a data-i18n="common.nav.epilogue" class="nav-link" href="epilogo.html">Epílogo</a></li>
+          <li><a data-i18n="common.nav.reviews" class="nav-link" href="reseñas.html">Reseñas</a></li>
+          <li><a data-i18n="common.nav.buy" class="nav-link" href="ventas.html">Comprar</a></li>
+          <li><a data-i18n="common.nav.login" class="nav-link" href="login.html">Login</a></li>
         </ul>
       </nav>
       <div id="mobileMenu" class="mx-auto hidden w-full max-w-6xl px-4 pb-4 md:hidden">
-        <a class="mobile-link" href="index.html#top">Inicio</a>
-        <a class="mobile-link" href="index.html#sinopsis">Sinopsis</a>
-        <a class="mobile-link" href="lectura.html">Lectura Completa</a>
-        <a class="mobile-link" href="epilogo.html">Epílogo</a>
-        <a class="mobile-link" href="reseñas.html">Reseñas</a>
-        <a class="mobile-link" href="ventas.html">Comprar</a>
-        <a class="mobile-link" href="login.html">Login</a>
+        <a data-i18n="common.nav.home" class="mobile-link" href="index.html#top">Inicio</a>
+        <a data-i18n="common.nav.synopsis" class="mobile-link" href="index.html#sinopsis">Sinopsis</a>
+        <a data-i18n="common.nav.fullReading" class="mobile-link" href="lectura.html">Lectura Completa</a>
+        <a data-i18n="common.nav.epilogue" class="mobile-link" href="epilogo.html">Epílogo</a>
+        <a data-i18n="common.nav.reviews" class="mobile-link" href="reseñas.html">Reseñas</a>
+        <a data-i18n="common.nav.buy" class="mobile-link" href="ventas.html">Comprar</a>
+        <a data-i18n="common.nav.login" class="mobile-link" href="login.html">Login</a>
       </div>
     </header>
 
     <main class="mx-auto w-full max-w-6xl px-4 pb-16 pt-10 md:px-6">
       <section class="content-card card-reveal">
-        <p class="eyebrow">Contenido protegido</p>
-        <h1 class="book-h1 mb-2">Lectura Completa</h1>
+        <p data-i18n="pages.lectura.eyebrow" class="eyebrow">Contenido protegido</p>
+        <h1 data-i18n="pages.lectura.heading" class="book-h1 mb-2">Lectura Completa</h1>
         <div id="readingAccessStatus" class="notice mt-3"></div>
       </section>
 
       <section class="mt-6 content-card card-reveal delay-1">
-        <h2 class="section-title">Descripción del Libro</h2>
+        <h2 data-i18n="pages.lectura.descriptionTitle" class="section-title">Descripción del Libro</h2>
         <p id="publicDescription"></p>
       </section>
 
       <section class="mt-6 grid gap-6 md:grid-cols-2">
         <article class="content-card card-reveal delay-2">
-          <h2 class="section-title">Prólogo (vista pública)</h2>
+          <h2 data-i18n="pages.lectura.prologueTitle" class="section-title">Prólogo (vista pública)</h2>
           <div id="publicPrologue" class="whitespace-pre-wrap"></div>
         </article>
         <article class="content-card card-reveal delay-3">
-          <h2 class="section-title">Epílogo (vista pública)</h2>
+          <h2 data-i18n="pages.lectura.epilogueTitle" class="section-title">Epílogo (vista pública)</h2>
           <div id="publicEpilogue" class="whitespace-pre-wrap"></div>
         </article>
       </section>
 
       <section id="lockedPanel" class="mt-6 content-card card-reveal delay-2">
-        <h2 class="section-title">Acceso no habilitado</h2>
-        <p class="mb-4">
+        <h2 data-i18n="pages.lectura.lockedTitle" class="section-title">Acceso no habilitado</h2>
+        <p data-i18n="pages.lectura.lockedBody" class="mb-4">
           Para desbloquear el libro completo, realiza la compra y vuelve a esta sección.
         </p>
-        <a href="ventas.html" class="btn-main btn-interact inline-flex">Ir a Comprar</a>
+        <a data-i18n="common.actions.goToBuy" href="ventas.html" class="btn-main btn-interact inline-flex">Ir a Comprar</a>
       </section>
 
       <section id="readerPanel" class="mt-6 content-card card-reveal delay-3 hidden">
-        <h2 class="section-title">Texto completo</h2>
+        <h2 data-i18n="pages.lectura.fullTextTitle" class="section-title">Texto completo</h2>
         <div id="readerContent" class="max-h-[70vh] overflow-auto whitespace-pre-wrap leading-relaxed"></div>
       </section>
     </main>
 
+    <script type="module" src="i18n-init.js"></script>
     <script src="main.js"></script>
     <script type="module" src="lectura.js"></script>
   </body>

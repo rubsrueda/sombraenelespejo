@@ -7,6 +7,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 import { auth, db, isConfigured, serverTimestamp } from "./firebase-config.js";
+import { t } from "./i18n.js";
 
 const authNotice = document.getElementById("authNotice");
 const reviewForm = document.getElementById("reviewForm");
@@ -34,7 +35,7 @@ function renderReviews(items) {
   reviewsList.innerHTML = "";
 
   if (!items.length) {
-    reviewsList.innerHTML = '<article class="review-card"><p>Aún no hay reseñas. Sé la primera persona en comentar.</p></article>';
+    reviewsList.innerHTML = `<article class="review-card"><p>${t("dynamic.reviews.none")}</p></article>`;
     return;
   }
 
@@ -62,7 +63,7 @@ function renderReviews(items) {
 function startRealtimeReviews() {
   if (!isConfigured || !db) {
     reviewsList.innerHTML =
-      '<article class="review-card"><p>Configura Firebase en firebase-config.js para activar las reseñas en tiempo real.</p></article>';
+      `<article class="review-card"><p>${t("dynamic.reviews.firebaseConfig")}</p></article>`;
     return;
   }
 
@@ -76,13 +77,13 @@ function startRealtimeReviews() {
       renderReviews(items);
     },
     (error) => {
-      reviewsList.innerHTML = `<article class="review-card"><p>Error al leer reseñas: ${error.message}</p></article>`;
+      reviewsList.innerHTML = `<article class="review-card"><p>${t("dynamic.reviews.readError", { message: error.message })}</p></article>`;
     },
   );
 }
 
 if (!isConfigured || !auth || !db) {
-  authNotice.textContent = "Publicación de reseñas no habilitada en esta versión pública.";
+  authNotice.textContent = t("dynamic.reviews.disabledPublic");
   setFormEnabled(false);
   startRealtimeReviews();
 } else {
@@ -90,10 +91,10 @@ if (!isConfigured || !auth || !db) {
     currentUser = user;
 
     if (currentUser) {
-      authNotice.textContent = `Conectado como ${currentUser.email || "usuario"}. Ya puedes publicar reseñas.`;
+      authNotice.textContent = t("dynamic.reviews.connectedAs", { email: currentUser.email || "usuario" });
       setFormEnabled(true);
     } else {
-      authNotice.innerHTML = 'Debes iniciar sesión para escribir reseñas. Ve a <a href="login.html" class="underline">Login</a>.';
+      authNotice.innerHTML = t("dynamic.reviews.mustLogin");
       setFormEnabled(false);
     }
   });
@@ -105,7 +106,7 @@ reviewForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   if (!currentUser || !db) {
-    reviewFeedback.textContent = "Necesitas iniciar sesión para publicar.";
+    reviewFeedback.textContent = t("dynamic.reviews.needLoginToPost");
     return;
   }
 
@@ -119,15 +120,16 @@ reviewForm.addEventListener("submit", async (event) => {
   };
 
   if (!payload.name || !payload.comment) {
-    reviewFeedback.textContent = "Completa nombre y comentario.";
+    reviewFeedback.textContent = t("dynamic.reviews.completeFields");
     return;
   }
 
   try {
     await addDoc(collection(db, "reviews"), payload);
     reviewForm.reset();
-    reviewFeedback.textContent = "Reseña publicada correctamente.";
+    reviewFeedback.textContent = t("dynamic.reviews.publishOk");
   } catch (error) {
-    reviewFeedback.textContent = `No se pudo publicar la reseña: ${error.message}`;
+    reviewFeedback.textContent = t("dynamic.reviews.publishError", { message: error.message });
   }
 });
+

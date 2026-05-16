@@ -62,6 +62,16 @@ p {
   background: #ffffff;
 }
 
+.lang-select {
+  border: 1px solid rgba(15, 23, 42, 0.2);
+  border-radius: 10px;
+  padding: 0.25rem 0.5rem;
+  background: #ffffff;
+  color: var(--night);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
 .nav-link,
 .mobile-link {
   display: inline-flex;
