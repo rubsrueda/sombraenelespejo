@@ -30,12 +30,14 @@ export function hasAccess(accessGrantId) {
   return Boolean(state[accessGrantId]);
 }
 
-export function applyCheckoutGrantFromUrl({
-  token,
-  grantId,
-  accessParam = "access",
-  returnParam = "checkout",
-} = {}) {
+export function applyCheckoutGrantFromUrl(params = {}) {
+  const {
+    token,
+    grantId,
+    accessParam = "access",
+    returnParam = "checkout",
+  } = params || {};
+  
   if (!token || !grantId) {
     return false;
   }

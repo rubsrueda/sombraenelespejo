@@ -150,6 +150,11 @@ function renderMiniCatalog() {
 
 async function init() {
   try {
+    if (!PRODUCTO_ACTUAL) {
+      console.error("PRODUCTO_ACTUAL no está disponible");
+      return;
+    }
+
     const checkoutGranted = applyCheckoutGrantFromUrl({
       token: PRODUCTO_ACTUAL.accessGrantToken,
       grantId: PRODUCTO_ACTUAL.accessGrantId,

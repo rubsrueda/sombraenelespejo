@@ -89,25 +89,33 @@ function renderCheckoutNotice(shouldShow) {
   }
 }
 
-const checkoutGranted = applyCheckoutGrantFromUrl({
-  token: PRODUCTO_ACTUAL.accessGrantToken,
-  grantId: PRODUCTO_ACTUAL.accessGrantId,
-  accessParam: CATALOGO.accesoUrlParam,
-  returnParam: CATALOGO.accesoRetornoUrlParam,
-});
+let checkoutGranted = false;
 
-if (checkoutGranted) {
-  saveEntitlementForCurrentUser(PRODUCTO_ACTUAL.accessGrantId).catch(() => {
-    // Mantiene acceso local incluso si no hay sesión o falla la escritura remota.
+if (PRODUCTO_ACTUAL) {
+  checkoutGranted = applyCheckoutGrantFromUrl({
+    token: PRODUCTO_ACTUAL.accessGrantToken,
+    grantId: PRODUCTO_ACTUAL.accessGrantId,
+    accessParam: CATALOGO.accesoUrlParam,
+    returnParam: CATALOGO.accesoRetornoUrlParam,
   });
-}
 
-renderPage();
-renderCheckoutNotice(checkoutGranted);
+  if (checkoutGranted) {
+    saveEntitlementForCurrentUser(PRODUCTO_ACTUAL.accessGrantId).catch(() => {
+      // Mantiene acceso local incluso si no hay sesión o falla la escritura remota.
+    });
+  }
 
-window.addEventListener("af:languageChanged", () => {
-  benefitsGrid.innerHTML = "";
-  productTiers.innerHTML = "";
   renderPage();
   renderCheckoutNotice(checkoutGranted);
+} else {
+  console.error("PRODUCTO_ACTUAL no está disponible en ventas-producto.js");
+}
+
+window.addEventListener("af:languageChanged", () => {
+  if (PRODUCTO_ACTUAL) {
+    benefitsGrid.innerHTML = "";
+    productTiers.innerHTML = "";
+    renderPage();
+    renderCheckoutNotice(checkoutGranted);
+  }
 });
