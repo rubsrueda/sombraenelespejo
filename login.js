@@ -123,8 +123,12 @@ emailLoginBtn.addEventListener("click", async () => {
     authFeedback.textContent = t("dynamic.login.loginError", { message: error.message });
     return;
   }
-  await upsertUsuario({ email, nombre: "", idioma: navigator.language });
-  await logAuthAction("login_email", email, { metodo: "email" });
+  try {
+    await upsertUsuario({ email, nombre: "", idioma: navigator.language });
+    await logAuthAction("login_email", email, { metodo: "email" });
+  } catch {
+    // No bloquea el login si falla escritura auxiliar.
+  }
   trackEvent("af_login_success", { method: "email" });
   authFeedback.textContent = t("dynamic.login.loginOk");
   updateLoginStatus();
@@ -141,8 +145,12 @@ emailRegisterBtn.addEventListener("click", async () => {
     authFeedback.textContent = t("dynamic.login.registerError", { message: error.message });
     return;
   }
-  await upsertUsuario({ email, nombre: "", idioma: navigator.language });
-  await logAuthAction("registro_email", email, { metodo: "email" });
+  try {
+    await upsertUsuario({ email, nombre: "", idioma: navigator.language });
+    await logAuthAction("registro_email", email, { metodo: "email" });
+  } catch {
+    // No bloquea el alta si falla escritura auxiliar.
+  }
   trackEvent("af_signup_success", { method: "email" });
   authFeedback.textContent = t("dynamic.login.registerOk");
   updateLoginStatus();

@@ -10,6 +10,8 @@ const readerContent = document.getElementById("readerContent");
 const publicDescription = document.getElementById("publicDescription");
 const publicPrologue = document.getElementById("publicPrologue");
 const publicEpilogue = document.getElementById("publicEpilogue");
+const publicIndex = document.getElementById("publicIndex");
+const publicBibliography = document.getElementById("publicBibliography");
 
 async function loadBook() {
   const lang = getCurrentLang();
@@ -45,7 +47,7 @@ function compact(lines) {
   return lines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
 }
 
-function cut(text, max = 1300) {
+function cut(text, max = 6000) {
   if (text.length <= max) {
     return text;
   }
@@ -58,6 +60,7 @@ function extractPublicBlocks(text) {
   const indexStart = lines.findIndex(
     (line, index) => index > prologueStart && /^(ÍNDICE|INDICE|INDEX|INHALTSVERZEICHNIS|索引):?\s*$/i.test(line.trim()),
   );
+  const bibliographyStart = lines.findIndex((line) => /^(BIBLIOGRAF[IÍ]A|BIBLIOGRAPHY|LITERATURVERZEICHNIS|参考文献):?/i.test(line.trim()));
 
   const epilogueStart = lines.findIndex((line) => /^(EPÍLOGO|EPILOGO|EPILOGUE|EPILOG|ÉPILOGUE|结语):?/i.test(line.trim()));
   const epilogueEnd = lines.findIndex(
@@ -74,9 +77,21 @@ function extractPublicBlocks(text) {
       ? compact(lines.slice(epilogueStart, epilogueEnd === -1 ? lines.length : epilogueEnd))
       : t("dynamic.lectura.noEpilogue");
 
+  const indexBlock =
+    indexStart !== -1
+      ? compact(lines.slice(indexStart, epilogueStart !== -1 ? epilogueStart : (bibliographyStart !== -1 ? bibliographyStart : lines.length)))
+      : "Índice no disponible.";
+
+  const bibliography =
+    bibliographyStart !== -1
+      ? compact(lines.slice(bibliographyStart))
+      : "Bibliografía no disponible.";
+
   return {
-    prologue: cut(prologue, 1700),
-    epilogue: cut(epilogue, 1700),
+    prologue: cut(prologue),
+    epilogue: cut(epilogue),
+    index: cut(indexBlock),
+    bibliography: cut(bibliography),
   };
 }
 
@@ -86,6 +101,8 @@ function renderPublicContent(sourceText) {
   const extracted = extractPublicBlocks(sourceText);
   publicPrologue.textContent = extracted.prologue;
   publicEpilogue.textContent = extracted.epilogue;
+  publicIndex.textContent = extracted.index;
+  publicBibliography.textContent = extracted.bibliography;
 }
 
 async function init() {
@@ -98,7 +115,7 @@ async function init() {
 
   if (checkoutGranted) {
     saveEntitlementForCurrentUser(PRODUCTO_ACTUAL.accessGrantId).catch(() => {
-      // Si no hay sesión o falla Firebase, el acceso local sigue vigente.
+      // Si no hay sesión o falla la escritura remota, el acceso local sigue vigente.
     });
   }
 
@@ -112,6 +129,8 @@ async function init() {
     publicDescription.textContent = product.publicDescription;
     publicPrologue.textContent = t("dynamic.lectura.prologueError", { message: error.message });
     publicEpilogue.textContent = t("dynamic.lectura.epilogueError", { message: error.message });
+    publicIndex.textContent = `Error al cargar índice: ${error.message}`;
+    publicBibliography.textContent = `Error al cargar bibliografía: ${error.message}`;
   }
 
   let unlocked = hasAccess(PRODUCTO_ACTUAL.accessGrantId);

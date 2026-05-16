@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Resumen | Abel de Ferro</title>
+    <meta name="description" content="Resumen editorial de Sombra en el Espejo y claves de lectura." />
+    <meta name="robots" content="index,follow" />
+    <link rel="canonical" href="https://rubsrueda.github.io/sombraenelespejo/resumen.html" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              night: "#0f172a",
+              gold: "#d4af37",
+              paper: "#f8fafc",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="site-bg text-slate-800">
+    <header class="sticky top-0 z-50 border-b border-slate-200/70 bg-paper/90 backdrop-blur">
+      <nav class="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 md:px-6" aria-label="Principal">
+        <a href="index.html" class="brand-mark">Abel de Ferro</a>
+        <button id="mobileMenuBtn" class="menu-btn md:hidden" aria-expanded="false" aria-controls="mobileMenu">Menú</button>
+        <ul class="hidden items-center gap-2 md:flex">
+          <li><a class="nav-link" href="index.html#top">Inicio</a></li>
+          <li><a class="nav-link" href="resumen.html">Resumen</a></li>
+          <li><a class="nav-link" href="prologo.html">Prólogo</a></li>
+          <li><a class="nav-link" href="lectura.html">Lectura Completa</a></li>
+          <li><a class="nav-link" href="epilogo.html">Epílogo</a></li>
+          <li><a class="nav-link" href="ventas.html">Comprar</a></li>
+        </ul>
+      </nav>
+      <div id="mobileMenu" class="mx-auto hidden w-full max-w-6xl px-4 pb-4 md:hidden">
+        <a class="mobile-link" href="index.html#top">Inicio</a>
+        <a class="mobile-link" href="resumen.html">Resumen</a>
+        <a class="mobile-link" href="prologo.html">Prólogo</a>
+        <a class="mobile-link" href="lectura.html">Lectura Completa</a>
+        <a class="mobile-link" href="epilogo.html">Epílogo</a>
+        <a class="mobile-link" href="ventas.html">Comprar</a>
+      </div>
+    </header>
+
+    <main class="mx-auto w-full max-w-6xl px-4 pb-16 pt-10 md:px-6">
+      <section class="content-card card-reveal">
+        <p class="eyebrow">Resumen editorial</p>
+        <h1 class="book-h1 mb-2">Resumen de Sombra en el Espejo</h1>
+        <p class="mb-4 text-slate-700">La obra de Abel de Ferro explora la manipulación emocional, la violencia psicológica y la reconstrucción de la dignidad personal.</p>
+        <ul class="list-disc pl-6 space-y-2">
+          <li>Diagnostica patrones de control y dependencia dentro de vínculos íntimos.</li>
+          <li>Combina narrativa testimonial con análisis técnico de dinámicas de abuso.</li>
+          <li>Propone una lectura crítica sobre límites, consentimiento y autonomía.</li>
+        </ul>
+      </section>
+
+      <section class="mt-6 content-card card-reveal delay-1">
+        <h2 class="section-title">Sobre Abel de Ferro</h2>
+        <p>Abel de Ferro escribe desde una mirada clínica y literaria sobre el daño invisible, con foco en la claridad conceptual y la reparación personal.</p>
+      </section>
+
+      <section class="mt-6 content-card card-reveal delay-2">
+        <h2 class="section-title">Explorar capítulos clave</h2>
+        <div class="flex flex-wrap gap-3">
+          <a href="prologo.html" class="btn-secondary btn-interact inline-flex">Leer Prólogo</a>
+          <a href="lectura.html" class="btn-main btn-interact inline-flex">Lectura Completa</a>
+          <a href="epilogo.html" class="btn-secondary btn-interact inline-flex">Leer Epílogo</a>
+          <a href="ventas.html" class="btn-main btn-interact inline-flex">Comprar libro</a>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="main.js"></script>
+  </body>
+</html>

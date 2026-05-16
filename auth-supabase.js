@@ -58,7 +58,7 @@ export async function upsertUsuario({ email, nombre, idioma }) {
   // Crea o actualiza usuario en af_usuarios
   return await supabase.from("af_usuarios").upsert([
     { email, nombre, idioma, ultimo_login: new Date().toISOString() },
-  ], { onConflict: ["email"] });
+  ], { onConflict: "email" });
 }
 
 async function getUsuarioIdByEmail(email) {

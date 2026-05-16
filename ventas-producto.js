@@ -31,12 +31,16 @@ function formatPriceList(item) {
 }
 
 function createBenefitCard(item, index) {
+  const title = item.titulo || item.title || "";
+  const badge = item.badge || "";
+  const description = item.descripcion || item.description || "";
+
   const article = document.createElement("article");
   article.className = `sales-card card-reveal delay-${Math.min(index + 1, 3)}`;
   article.innerHTML = `
-    <h2 class="section-title">${item.titulo}</h2>
-    <p class="badge">${item.badge}</p>
-    <p class="mt-3">${item.descripcion}</p>
+    <h2 class="section-title">${title}</h2>
+    <p class="badge">${badge}</p>
+    <p class="mt-3">${description}</p>
   `;
   return article;
 }
@@ -76,9 +80,9 @@ function renderPage() {
   productTitle.textContent = localized.name;
   productSubtitle.textContent = t("dynamic.buy.productSubtitle", { platform: PRODUCTO_ACTUAL.plataforma });
 
-  localized.benefits.forEach((item, index) => {
-    benefitsGrid.appendChild(createBenefitCard(item, index));
-  });
+  // Enfoca la experiencia en un único producto de compra.
+  benefitsGrid.innerHTML = "";
+  benefitsGrid.classList.add("hidden");
 
   productTiers.appendChild(createTierCard(PRODUCTO_ACTUAL));
 
@@ -105,7 +109,7 @@ const checkoutGranted = applyCheckoutGrantFromUrl({
 
 if (checkoutGranted) {
   saveEntitlementForCurrentUser(PRODUCTO_ACTUAL.accessGrantId).catch(() => {
-    // Mantiene acceso local incluso si no hay sesión o Firebase falla.
+    // Mantiene acceso local incluso si no hay sesión o falla la escritura remota.
   });
 }
 

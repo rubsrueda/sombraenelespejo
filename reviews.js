@@ -1,12 +1,4 @@
-import {
-  addDoc,
-  collection,
-  onSnapshot,
-  orderBy,
-  query,
-} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
-import { auth, db, isConfigured, serverTimestamp } from "./firebase-config.js";
+import { supabase } from "./supabase-client.js";
 import { t } from "./i18n.js";
 
 const authNotice = document.getElementById("authNotice");
@@ -60,52 +52,52 @@ function renderReviews(items) {
   });
 }
 
-function startRealtimeReviews() {
-  if (!isConfigured || !db) {
-    reviewsList.innerHTML =
-      `<article class="review-card"><p>${t("dynamic.reviews.firebaseConfig")}</p></article>`;
+async function loadReviews() {
+  const { data, error } = await supabase
+    .from("af_reviews")
+    .select("id, nombre, valoracion, comentario, creado_en")
+    .order("creado_en", { ascending: false })
+    .limit(200);
+
+  if (error) {
+    reviewsList.innerHTML = `<article class="review-card"><p>${t("dynamic.reviews.readError", { message: error.message })}</p></article>`;
     return;
   }
 
-  const reviewsRef = collection(db, "reviews");
-  const reviewsQuery = query(reviewsRef, orderBy("createdAt", "desc"));
+  const items = (data || []).map((row) => ({
+    id: row.id,
+    name: row.nombre,
+    rating: row.valoracion,
+    comment: row.comentario,
+  }));
 
-  onSnapshot(
-    reviewsQuery,
-    (snapshot) => {
-      const items = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      renderReviews(items);
-    },
-    (error) => {
-      reviewsList.innerHTML = `<article class="review-card"><p>${t("dynamic.reviews.readError", { message: error.message })}</p></article>`;
-    },
-  );
+  renderReviews(items);
 }
 
-if (!isConfigured || !auth || !db) {
-  authNotice.textContent = t("dynamic.reviews.disabledPublic");
-  setFormEnabled(false);
-  startRealtimeReviews();
-} else {
-  onAuthStateChanged(auth, (user) => {
-    currentUser = user;
+async function syncAuthState() {
+  const { data } = await supabase.auth.getUser();
+  currentUser = data.user;
 
-    if (currentUser) {
-      authNotice.textContent = t("dynamic.reviews.connectedAs", { email: currentUser.email || "usuario" });
-      setFormEnabled(true);
-    } else {
-      authNotice.innerHTML = t("dynamic.reviews.mustLogin");
-      setFormEnabled(false);
-    }
-  });
-
-  startRealtimeReviews();
+  if (currentUser) {
+    authNotice.textContent = t("dynamic.reviews.connectedAs", { email: currentUser.email || "usuario" });
+    setFormEnabled(true);
+  } else {
+    authNotice.innerHTML = t("dynamic.reviews.mustLogin");
+    setFormEnabled(false);
+  }
 }
+
+supabase.auth.onAuthStateChange(() => {
+  syncAuthState();
+});
+
+syncAuthState();
+loadReviews();
 
 reviewForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
-  if (!currentUser || !db) {
+  if (!currentUser) {
     reviewFeedback.textContent = t("dynamic.reviews.needLoginToPost");
     return;
   }
@@ -115,8 +107,8 @@ reviewForm.addEventListener("submit", async (event) => {
     name: String(formData.get("reviewName") || "").trim(),
     rating: Number(formData.get("reviewRating") || 5),
     comment: String(formData.get("reviewComment") || "").trim(),
-    userId: currentUser.uid,
-    createdAt: serverTimestamp(),
+    userId: currentUser.id,
+    email: currentUser.email,
   };
 
   if (!payload.name || !payload.comment) {
@@ -125,9 +117,23 @@ reviewForm.addEventListener("submit", async (event) => {
   }
 
   try {
-    await addDoc(collection(db, "reviews"), payload);
+    const { error } = await supabase.from("af_reviews").insert([
+      {
+        usuario_id: payload.userId,
+        email: payload.email,
+        nombre: payload.name,
+        valoracion: payload.rating,
+        comentario: payload.comment,
+      },
+    ]);
+
+    if (error) {
+      throw error;
+    }
+
     reviewForm.reset();
     reviewFeedback.textContent = t("dynamic.reviews.publishOk");
+    loadReviews();
   } catch (error) {
     reviewFeedback.textContent = t("dynamic.reviews.publishError", { message: error.message });
   }
