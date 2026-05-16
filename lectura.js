@@ -13,6 +13,16 @@ const statusNode = document.getElementById("readingAccessStatus");
 const lockedPanel = document.getElementById("lockedPanel");
 const catalogList = document.getElementById("catalogList");
 
+const READING_PROGRESS_KEY = "sombra_reading_progress_v1";
+
+const readingState = {
+  availableTabs: [],
+  activeTabId: null,
+  sectionRanges: null,
+  progressEntryKey: "anon",
+  unlocked: false,
+};
+
 const SECTION_ALIASES = {
   prologue: ["prologo", "prólogo", "prologue", "preface", "avantpropos", "vorwort", "前言"],
   index: ["indice", "índice", "index", "tableofcontents", "inhaltsverzeichnis", "目录"],
@@ -217,6 +227,17 @@ function extractSections(text) {
   const markedBibliography = stageSlice(lines, markerBounds, "BIBLIOGRAFIA");
   const markedEpilogue = stageSlice(lines, markerBounds, "EPILOGO");
 
+  const rangeFromStage = (name) => {
+    const node = markerBounds.get(name);
+    if (!node || node.start < 0 || node.end <= node.start) {
+      return null;
+    }
+    return {
+      start: node.start + 2,
+      end: node.end,
+    };
+  };
+
   if (markedPrologue || markedIndex || markedChapters || markedBibliography || markedEpilogue) {
     return {
       prologue: markedPrologue || t("dynamic.lectura.noPrologue"),
@@ -224,6 +245,15 @@ function extractSections(text) {
       epilogue: markedEpilogue || t("dynamic.lectura.noEpilogue"),
       index: markedIndex || "Índice no disponible.",
       bibliography: markedBibliography || "Bibliografía no disponible.",
+      _meta: {
+        ranges: {
+          prologue: rangeFromStage("PROLOGO"),
+          index: rangeFromStage("INDICE"),
+          chapters: rangeFromStage("CAPITULOS"),
+          bibliography: rangeFromStage("BIBLIOGRAFIA"),
+          epilogue: rangeFromStage("EPILOGO"),
+        },
+      },
     };
   }
 
@@ -261,6 +291,9 @@ function extractSections(text) {
     epilogue: getSection(lines, "epilogue") || t("dynamic.lectura.noEpilogue"),
     index: getSection(lines, "index") || "Índice no disponible.",
     bibliography: getSection(lines, "bibliography") || fallbackBibliography(lines) || "Bibliografía no disponible.",
+    _meta: {
+      ranges: null,
+    },
   };
 }
 
@@ -431,6 +464,93 @@ function renderMiniCatalog() {
     .join("");
 }
 
+function readProgressState() {
+  try {
+    const raw = localStorage.getItem(READING_PROGRESS_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    return typeof parsed === "object" && parsed ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeProgressState(state) {
+  try {
+    localStorage.setItem(READING_PROGRESS_KEY, JSON.stringify(state));
+  } catch {
+    // Ignore storage failures.
+  }
+}
+
+function getLineRatioFromScroll() {
+  const rect = sectionContent.getBoundingClientRect();
+  const sectionTop = window.scrollY + rect.top - 120;
+  const maxScrollable = Math.max(1, sectionContent.offsetHeight - window.innerHeight * 0.55);
+  const ratio = (window.scrollY - sectionTop) / maxScrollable;
+  return Math.max(0, Math.min(1, ratio));
+}
+
+function estimateLineForActiveTab() {
+  const ranges = readingState.sectionRanges;
+  const tabId = readingState.activeTabId;
+  if (!ranges || !tabId || !ranges[tabId]) {
+    return null;
+  }
+  const range = ranges[tabId];
+  const ratio = getLineRatioFromScroll();
+  return Math.round(range.start + ratio * Math.max(0, range.end - range.start));
+}
+
+function saveReadingProgress() {
+  if (!readingState.unlocked || !readingState.progressEntryKey || !readingState.activeTabId) {
+    return;
+  }
+
+  const state = readProgressState();
+  state[readingState.progressEntryKey] = {
+    tabId: readingState.activeTabId,
+    ratio: getLineRatioFromScroll(),
+    line: estimateLineForActiveTab(),
+    savedAt: new Date().toISOString(),
+  };
+  writeProgressState(state);
+}
+
+function restoreReadingProgress() {
+  if (!readingState.progressEntryKey) {
+    return null;
+  }
+  const state = readProgressState();
+  return state[readingState.progressEntryKey] || null;
+}
+
+function tabIdForLine(line) {
+  const ranges = readingState.sectionRanges;
+  if (!ranges || !Number.isFinite(line)) {
+    return null;
+  }
+
+  const entries = Object.entries(ranges);
+  const found = entries.find(([, range]) => range && line >= range.start && line <= range.end);
+  return found ? found[0] : null;
+}
+
+function ratioForLine(tabId, line) {
+  const range = readingState.sectionRanges?.[tabId];
+  if (!range || !Number.isFinite(line) || range.end <= range.start) {
+    return 0;
+  }
+  return Math.max(0, Math.min(1, (line - range.start) / (range.end - range.start)));
+}
+
+function scrollToRatio(ratio = 0) {
+  const rect = sectionContent.getBoundingClientRect();
+  const sectionTop = window.scrollY + rect.top - 120;
+  const maxScrollable = Math.max(1, sectionContent.offsetHeight - window.innerHeight * 0.55);
+  const targetTop = sectionTop + ratio * maxScrollable;
+  window.scrollTo({ top: targetTop, behavior: "auto" });
+}
+
 async function init() {
   try {
     if (!PRODUCTO_ACTUAL) {
@@ -447,6 +567,9 @@ async function init() {
     const user = await getCurrentUser().catch(() => null);
     const adminUnlocked = isAdminUser(user);
     const unlocked = checkoutGranted || hasAccess(PRODUCTO_ACTUAL.accessGrantId) || adminUnlocked;
+    const userKey = normalizeEmail(user?.email) || "anon";
+    readingState.progressEntryKey = `${PRODUCTO_ACTUAL.accessGrantId}::${userKey}`;
+    readingState.unlocked = unlocked;
 
     if (checkoutGranted) {
       saveEntitlementForCurrentUser(PRODUCTO_ACTUAL.accessGrantId).catch(() => {
@@ -464,6 +587,7 @@ async function init() {
     // Cargar libro y extraer secciones
     const sourceText = await loadBook();
     const sections = extractSections(sourceText);
+    readingState.sectionRanges = sections?._meta?.ranges || null;
 
     // Definir navegación disponible
     const availableTabs = [
@@ -481,6 +605,20 @@ async function init() {
       { id: "bibliography", label: "Bibliografía", content: sections.bibliography },
       { id: "epilogue", label: "Epílogo", content: sections.epilogue }
     );
+    readingState.availableTabs = availableTabs;
+
+    function renderTabById(tabId) {
+      const tab = availableTabs.find((item) => item.id === tabId) || availableTabs[0];
+      readingState.activeTabId = tab.id;
+
+      const tabButtons = document.querySelectorAll(".tab-btn");
+      tabButtons.forEach((btn) => {
+        btn.classList.toggle("active", btn.getAttribute("data-tab") === tab.id);
+      });
+
+      sectionContent.innerHTML = renderSectionContent(tab);
+      return tab;
+    }
 
     // Renderizar tabs
     contentNav.innerHTML = availableTabs
@@ -491,8 +629,25 @@ async function init() {
       `)
       .join("");
 
-    // Mostrar primera sección por defecto
-    sectionContent.innerHTML = renderSectionContent(availableTabs[0]);
+    const url = new URL(window.location.href);
+    const requestedLine = Number(url.searchParams.get("line"));
+    const savedProgress = restoreReadingProgress();
+
+    let targetTabId = availableTabs[0].id;
+    let targetRatio = 0;
+
+    if (Number.isFinite(requestedLine) && requestedLine > 0) {
+      const lineTabId = tabIdForLine(requestedLine);
+      if (lineTabId) {
+        targetTabId = lineTabId;
+        targetRatio = ratioForLine(lineTabId, requestedLine);
+      }
+    } else if (savedProgress?.tabId && availableTabs.some((tab) => tab.id === savedProgress.tabId)) {
+      targetTabId = savedProgress.tabId;
+      targetRatio = Number(savedProgress.ratio) || 0;
+    }
+
+    renderTabById(targetTabId);
 
     // Event listeners para tabs
     const tabButtons = document.querySelectorAll(".tab-btn");
@@ -500,15 +655,9 @@ async function init() {
       btn.addEventListener("click", (e) => {
         e.preventDefault();
         const tabId = btn.getAttribute("data-tab");
-        const tab = availableTabs.find((t) => t.id === tabId);
-        if (!tab) return;
-
-        // Actualizar tab activo
-        tabButtons.forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-
-        // Mostrar contenido
-        sectionContent.innerHTML = renderSectionContent(tab);
+        renderTabById(tabId);
+        scrollToRatio(0);
+        saveReadingProgress();
       });
     });
 
@@ -522,6 +671,25 @@ async function init() {
       contentPanel.classList.remove("hidden");
       contentNav.classList.remove("hidden");
       lockedPanel.classList.add("hidden");
+
+      // Restore scroll position after initial render.
+      setTimeout(() => {
+        scrollToRatio(targetRatio);
+      }, 30);
+
+      let saveTimer = null;
+      window.addEventListener("scroll", () => {
+        if (saveTimer) {
+          clearTimeout(saveTimer);
+        }
+        saveTimer = setTimeout(() => {
+          saveReadingProgress();
+        }, 250);
+      }, { passive: true });
+
+      window.addEventListener("beforeunload", () => {
+        saveReadingProgress();
+      });
     }
   } catch (error) {
     console.error("Error cargando lectura:", error);

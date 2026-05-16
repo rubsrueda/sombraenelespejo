@@ -1,6 +1,7 @@
 import { CATALOGO, PRODUCTO_ACTUAL } from "./producto-config.js";
-import { applyCheckoutGrantFromUrl } from "./access-control.js";
-import { saveEntitlementForCurrentUser } from "./entitlements.js";
+import { applyCheckoutGrantFromUrl, hasAccess } from "./access-control.js";
+import { getCurrentUser, resolveAccess, saveEntitlementForCurrentUser } from "./entitlements.js";
+import { ADMIN_EMAILS } from "./admin-config.js";
 import { getCurrentLang, getProductI18n, t } from "./i18n.js";
 
 const benefitsGrid = document.getElementById("benefitsGrid");
@@ -44,14 +45,57 @@ function createBenefitCard(item, index) {
   return article;
 }
 
-function createTierCard(item) {
+function normalizeEmail(email) {
+  const value = String(email || "").trim().toLowerCase();
+  const [local = "", domain = ""] = value.split("@");
+  if (domain === "gmail.com" || domain === "googlemail.com") {
+    const cleanLocal = local.split("+")[0].replace(/\./g, "");
+    return `${cleanLocal}@gmail.com`;
+  }
+  return value;
+}
+
+function hasAdminRole(rawRole) {
+  if (typeof rawRole === "string") {
+    const normalized = rawRole.trim().toLowerCase();
+    return ["admin", "administrador", "superadmin"].includes(normalized);
+  }
+  if (Array.isArray(rawRole)) {
+    return rawRole.some((item) => hasAdminRole(item));
+  }
+  return false;
+}
+
+function isAdminUser(user) {
+  const email = normalizeEmail(user?.email);
+  if (!email) {
+    return false;
+  }
+
+  const allowList = ADMIN_EMAILS.map(normalizeEmail);
+  if (allowList.includes(email)) {
+    return true;
+  }
+
+  return hasAdminRole(user?.user_metadata?.role)
+    || hasAdminRole(user?.user_metadata?.roles)
+    || hasAdminRole(user?.app_metadata?.role)
+    || hasAdminRole(user?.app_metadata?.roles);
+}
+
+function createTierCard(item, { unlocked = false } = {}) {
   const localized = getProductI18n(getCurrentLang());
   const article = document.createElement("article");
   article.className = "sales-card card-reveal tier-card";
 
-  const cta = item.enlaceCheckoutActivo
-    ? `<a href="${item.enlaceCheckout}" target="_blank" rel="noopener noreferrer" class="btn-main btn-interact inline-flex">${t("common.actions.buyNow")}</a>`
-    : `<button class="btn-secondary opacity-70 cursor-not-allowed" type="button" disabled>${t("dynamic.buy.setupCta")}</button>`;
+  let cta = "";
+  if (unlocked) {
+    cta = `<a href="lectura.html" class="btn-main btn-interact inline-flex">Ir a lectura</a>`;
+  } else if (item.enlaceCheckoutActivo) {
+    cta = `<a href="${item.enlaceCheckout}" target="_blank" rel="noopener noreferrer" class="btn-main btn-interact inline-flex">${t("common.actions.buyNow")}</a>`;
+  } else {
+    cta = `<button class="btn-secondary opacity-70 cursor-not-allowed" type="button" disabled>${t("dynamic.buy.setupCta")}</button>`;
+  }
 
   article.innerHTML = `
     <p class="tier-price">${formatPriceList(item)}</p>
@@ -64,7 +108,7 @@ function createTierCard(item) {
   return article;
 }
 
-function renderPage() {
+function renderPage({ unlocked = false } = {}) {
   const localized = getProductI18n(getCurrentLang());
 
   productTitle.textContent = localized.name;
@@ -74,48 +118,75 @@ function renderPage() {
   benefitsGrid.innerHTML = "";
   benefitsGrid.classList.add("hidden");
 
-  productTiers.appendChild(createTierCard(PRODUCTO_ACTUAL));
+  productTiers.appendChild(createTierCard(PRODUCTO_ACTUAL, { unlocked }));
 
   salesTransparencyText.textContent = localized.transparency;
 }
 
-function renderCheckoutNotice(shouldShow) {
+function renderCheckoutNotice({ checkoutGranted = false, unlocked = false, adminUnlocked = false } = {}) {
   if (!accessStatus) {
     return;
   }
-  accessStatus.classList.toggle("hidden", !shouldShow);
-  if (shouldShow) {
+  accessStatus.classList.toggle("hidden", !unlocked && !checkoutGranted);
+  if (adminUnlocked) {
+    accessStatus.textContent = "Acceso administrador activo. Puedes entrar a Lectura sin comprar.";
+    return;
+  }
+  if (unlocked || checkoutGranted) {
     accessStatus.innerHTML = t("dynamic.buy.activeAccess");
   }
 }
 
-let checkoutGranted = false;
+const state = {
+  checkoutGranted: false,
+  unlocked: false,
+  adminUnlocked: false,
+};
 
-if (PRODUCTO_ACTUAL) {
-  checkoutGranted = applyCheckoutGrantFromUrl({
+async function init() {
+  if (!PRODUCTO_ACTUAL) {
+    console.error("PRODUCTO_ACTUAL no está disponible en ventas-producto.js");
+    return;
+  }
+
+  state.checkoutGranted = applyCheckoutGrantFromUrl({
     token: PRODUCTO_ACTUAL.accessGrantToken,
     grantId: PRODUCTO_ACTUAL.accessGrantId,
     accessParam: CATALOGO.accesoUrlParam,
     returnParam: CATALOGO.accesoRetornoUrlParam,
   });
 
-  if (checkoutGranted) {
+  if (state.checkoutGranted) {
     saveEntitlementForCurrentUser(PRODUCTO_ACTUAL.accessGrantId).catch(() => {
       // Mantiene acceso local incluso si no hay sesión o falla la escritura remota.
     });
   }
 
-  renderPage();
-  renderCheckoutNotice(checkoutGranted);
-} else {
-  console.error("PRODUCTO_ACTUAL no está disponible en ventas-producto.js");
+  const user = await getCurrentUser().catch(() => null);
+  state.adminUnlocked = isAdminUser(user);
+  const localUnlocked = hasAccess(PRODUCTO_ACTUAL.accessGrantId);
+  const remoteUnlocked = await resolveAccess(PRODUCTO_ACTUAL.accessGrantId).catch(() => false);
+  state.unlocked = state.checkoutGranted || localUnlocked || remoteUnlocked || state.adminUnlocked;
+
+  renderPage({ unlocked: state.unlocked });
+  renderCheckoutNotice({
+    checkoutGranted: state.checkoutGranted,
+    unlocked: state.unlocked,
+    adminUnlocked: state.adminUnlocked,
+  });
 }
+
+init();
 
 window.addEventListener("af:languageChanged", () => {
   if (PRODUCTO_ACTUAL) {
     benefitsGrid.innerHTML = "";
     productTiers.innerHTML = "";
-    renderPage();
-    renderCheckoutNotice(checkoutGranted);
+    renderPage({ unlocked: state.unlocked });
+    renderCheckoutNotice({
+      checkoutGranted: state.checkoutGranted,
+      unlocked: state.unlocked,
+      adminUnlocked: state.adminUnlocked,
+    });
   }
 });
