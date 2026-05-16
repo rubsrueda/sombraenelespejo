@@ -282,6 +282,10 @@ function renderSectionContent(tab) {
     .filter(Boolean);
 
   const articleParts = [];
+  let insideChapter = false;
+  let phaseNarrativeShown = false;
+  let phaseAnalysisShown = false;
+  let phaseMirrorShown = false;
 
   blocks.forEach((block, index) => {
     const blockLines = block.split("\n");
@@ -314,6 +318,10 @@ function renderSectionContent(tab) {
 
     if (/^(cap[ií]tulo|chapter|secci[oó]n|ep[ií]logo|pr[oó]logo)\b/i.test(normalized)) {
       articleParts.push(`<h3 class="reading-chapter-title">${formatInline(normalized)}</h3>`);
+      insideChapter = /^cap[ií]tulo\b/i.test(normalized);
+      phaseNarrativeShown = false;
+      phaseAnalysisShown = false;
+      phaseMirrorShown = false;
       const remainder = block
         .split("\n")
         .slice(1)
@@ -323,6 +331,35 @@ function renderSectionContent(tab) {
         articleParts.push(`<p class="reading-paragraph">${formatInline(remainder.replace(/\n+/g, " "))}</p>`);
       }
       return;
+    }
+
+    if (sectionId === "chapters" && /^\d+\.\d+\.\s+/.test(normalized)) {
+      if (insideChapter && !phaseAnalysisShown) {
+        articleParts.push('<h4 class="reading-phase-title">Fase 2: Análisis</h4>');
+        phaseAnalysisShown = true;
+      }
+      articleParts.push(`<h4 class="reading-point-title">${formatInline(normalized)}</h4>`);
+      if (remainingLines) {
+        articleParts.push(`<p class="reading-paragraph">${formatInline(remainingLines.replace(/\n+/g, " "))}</p>`);
+      }
+      return;
+    }
+
+    if (sectionId === "chapters" && /^\[bloque:/i.test(firstLine)) {
+      if (insideChapter && !phaseMirrorShown) {
+        articleParts.push('<h4 class="reading-phase-title">Fase 3: Bloque Espejo</h4>');
+        phaseMirrorShown = true;
+      }
+      articleParts.push(`<h4 class="reading-mirror-title">${formatInline(firstLine)}</h4>`);
+      if (remainingLines) {
+        articleParts.push(`<p class="reading-paragraph">${formatInline(remainingLines.replace(/\n+/g, " "))}</p>`);
+      }
+      return;
+    }
+
+    if (sectionId === "chapters" && insideChapter && !phaseAnalysisShown && !phaseMirrorShown && !phaseNarrativeShown) {
+      articleParts.push('<h4 class="reading-phase-title">Fase 1: Viñeta / Narración</h4>');
+      phaseNarrativeShown = true;
     }
 
     if (sectionId === "index" && /^(\d+[\.)]|cap[ií]tulo\s+\d+)/i.test(normalized)) {
