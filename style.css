@@ -1,0 +1,308 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap");
+
+:root {
+  --night: #0f172a;
+  --gold: #d4af37;
+  --paper: #f8fafc;
+  --ink: #1e293b;
+  --card-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+  --card-radius: 12px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Inter", "Montserrat", sans-serif;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 10% 0%, rgba(212, 175, 55, 0.12), transparent 34%),
+    radial-gradient(circle at 90% 8%, rgba(15, 23, 42, 0.08), transparent 38%),
+    linear-gradient(145deg, #f3f7fc, var(--paper));
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: "Playfair Display", serif;
+  color: var(--night);
+}
+
+p {
+  margin: 0;
+}
+
+.site-bg {
+  min-height: 100vh;
+}
+
+.brand-mark {
+  font-family: "Playfair Display", serif;
+  font-size: 1.2rem;
+  letter-spacing: 0.04em;
+  color: var(--night);
+}
+
+.menu-btn {
+  border: 1px solid rgba(15, 23, 42, 0.2);
+  border-radius: 10px;
+  padding: 0.35rem 0.8rem;
+  font-weight: 600;
+  color: var(--night);
+  background: #ffffff;
+}
+
+.nav-link,
+.mobile-link {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 10px;
+  padding: 0.25rem 0.7rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1f2c43;
+  text-decoration: none;
+  transition: transform 220ms ease, background-color 220ms ease;
+}
+
+.mobile-link {
+  display: block;
+  margin-top: 0.35rem;
+}
+
+.nav-link:hover,
+.mobile-link:hover {
+  background: rgba(212, 175, 55, 0.14);
+  transform: scale(1.05);
+}
+
+.book-h1 {
+  margin-top: 0.35rem;
+  margin-bottom: 0.6rem;
+  letter-spacing: 0.02em;
+  font-size: 2.5rem;
+  line-height: 1.1;
+}
+
+.eyebrow {
+  font-size: 0.82rem;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  color: #7c6640;
+  font-weight: 700;
+}
+
+.tagline {
+  margin-bottom: 0.95rem;
+  color: #334155;
+  font-weight: 500;
+}
+
+.cover-shell {
+  background: rgba(255, 255, 255, 0.72);
+  border-radius: var(--card-radius);
+  padding: 1rem;
+  box-shadow: var(--card-shadow);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+}
+
+.cover-art {
+  border-radius: var(--card-radius);
+  min-height: 420px;
+  background:
+    linear-gradient(145deg, rgba(15, 23, 42, 0.92), rgba(24, 38, 66, 0.95)),
+    linear-gradient(0deg, transparent 48%, rgba(212, 175, 55, 0.3) 51%, transparent 54%);
+  position: relative;
+  overflow: hidden;
+}
+
+.cover-art::before {
+  content: "Sombra\a en el\a Espejo";
+  white-space: pre;
+  position: absolute;
+  left: 1.4rem;
+  bottom: 1.5rem;
+  color: #f8fafc;
+  line-height: 1.1;
+  font-family: "Playfair Display", serif;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+}
+
+.cover-art::after {
+  content: "";
+  position: absolute;
+  inset: 8% 12%;
+  border: 1px solid rgba(212, 175, 55, 0.46);
+  border-radius: 10px;
+}
+
+.content-card,
+.form-card,
+.review-card,
+.sales-card {
+  border-radius: var(--card-radius);
+  border: 1px solid rgba(15, 23, 42, 0.11);
+  box-shadow: var(--card-shadow);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(3px);
+  padding: clamp(1rem, 2vw, 1.8rem);
+}
+
+.section-title {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  display: inline-block;
+  padding-bottom: 0.35rem;
+  border-bottom: 2px solid rgba(212, 175, 55, 0.8);
+}
+
+.quote-block {
+  margin-top: 1rem;
+  border-left: 4px solid rgba(212, 175, 55, 0.75);
+  padding-left: 1rem;
+  color: #334155;
+  font-style: italic;
+}
+
+.author-avatar {
+  width: 98px;
+  aspect-ratio: 1;
+  border-radius: 999px;
+  border: 2px solid rgba(212, 175, 55, 0.9);
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 30% 30%, #fef3c7, #fde68a 55%, #f59e0b);
+  color: #1f2937;
+  font-weight: 700;
+}
+
+.btn-main,
+.btn-secondary,
+.btn-danger {
+  border: 0;
+  border-radius: 10px;
+  padding: 0.65rem 1.1rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 220ms ease, box-shadow 220ms ease, background-color 220ms ease;
+}
+
+.btn-main {
+  background: linear-gradient(135deg, #d4af37, #b0892f);
+  color: #111827;
+}
+
+.btn-secondary {
+  background: #1f2a44;
+  color: #f8fafc;
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: #fff;
+}
+
+.btn-interact:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.2);
+}
+
+label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.18);
+  background: #ffffff;
+  padding: 0.55rem 0.7rem;
+  font: inherit;
+}
+
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.notice {
+  border-left: 4px solid #1d4ed8;
+  background: #eff6ff;
+  color: #1e3a8a;
+  border-radius: 8px;
+  padding: 0.75rem 0.9rem;
+}
+
+.stars {
+  color: #c18f16;
+  letter-spacing: 0.07em;
+  font-weight: 700;
+}
+
+.tier-card {
+  border-left: 4px solid rgba(212, 175, 55, 0.9);
+}
+
+.tier-price {
+  margin-top: 0;
+  margin-bottom: 0.4rem;
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--night);
+  font-family: "Playfair Display", serif;
+}
+
+.badge {
+  display: inline-block;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.07);
+  padding: 0.2rem 0.58rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.card-reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  animation: reveal 700ms ease forwards;
+}
+
+.delay-1 {
+  animation-delay: 120ms;
+}
+
+.delay-2 {
+  animation-delay: 240ms;
+}
+
+.delay-3 {
+  animation-delay: 360ms;
+}
+
+@keyframes reveal {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (min-width: 768px) {
+  .book-h1 {
+    font-size: 4rem;
+  }
+}

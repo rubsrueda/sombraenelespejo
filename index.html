@@ -3,98 +3,107 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sombras en el Espejo | Lectura</title>
-    <link rel="stylesheet" href="styles.css" />
+    <title>Sombra en el Espejo | Sitio Oficial</title>
+    <meta
+      name="description"
+      content="Web oficial de Sombra en el Espejo: sinopsis, autor, reseñas y acceso de compra."
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              night: "#0f172a",
+              gold: "#d4af37",
+              paper: "#f8fafc",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="stylesheet" href="style.css" />
   </head>
-  <body>
-    <div id="gate" class="gate" aria-hidden="false">
-      <div class="gate-card">
-        <p class="gate-kicker">Edición Digital</p>
-        <h1>Sombras en el Espejo</h1>
-        <p>
-          Un espacio de lectura organizado por secciones para navegar título,
-          palabras clave, dedicatoria, prólogo, bibliografía y capítulos.
-        </p>
-        <button id="enterBtn" class="primary">Ingresar al libro</button>
-      </div>
-    </div>
-
-    <header class="topbar">
-      <div>
-        <p class="kicker">Lectura Interactiva</p>
-        <h1 id="bookTitle">Cargando...</h1>
-        <p id="bookSubtitle" class="subtitle"></p>
-      </div>
-      <div class="topbar-actions">
-        <button id="resetViewBtn" class="ghost">Inicio</button>
+  <body id="top" class="site-bg text-slate-800">
+    <header class="sticky top-0 z-50 border-b border-slate-200/70 bg-paper/90 backdrop-blur">
+      <nav class="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 md:px-6" aria-label="Principal">
+        <a href="index.html" class="brand-mark">Sombra en el Espejo</a>
+        <button id="mobileMenuBtn" class="menu-btn md:hidden" aria-expanded="false" aria-controls="mobileMenu">Menú</button>
+        <ul class="hidden items-center gap-2 md:flex">
+          <li><a class="nav-link" href="index.html#top">Inicio</a></li>
+          <li><a class="nav-link" href="index.html#sinopsis">Sinopsis</a></li>
+          <li><a class="nav-link" href="lectura.html">Lectura Completa</a></li>
+          <li><a class="nav-link" href="epilogo.html">Epílogo</a></li>
+          <li><a class="nav-link" href="reseñas.html">Reseñas</a></li>
+          <li><a class="nav-link" href="ventas.html">Comprar</a></li>
+          <li><a class="nav-link" href="login.html">Login</a></li>
+        </ul>
+      </nav>
+      <div id="mobileMenu" class="mx-auto hidden w-full max-w-6xl px-4 pb-4 md:hidden">
+        <a class="mobile-link" href="index.html#top">Inicio</a>
+        <a class="mobile-link" href="index.html#sinopsis">Sinopsis</a>
+        <a class="mobile-link" href="lectura.html">Lectura Completa</a>
+        <a class="mobile-link" href="epilogo.html">Epílogo</a>
+        <a class="mobile-link" href="reseñas.html">Reseñas</a>
+        <a class="mobile-link" href="ventas.html">Comprar</a>
+        <a class="mobile-link" href="login.html">Login</a>
       </div>
     </header>
 
-    <main class="layout">
-      <aside class="nav-panel">
-        <nav class="section-nav" aria-label="Secciones del libro">
-          <button class="nav-btn active" data-section="resumen">Resumen</button>
-          <button class="nav-btn" data-section="dedicatoria">Dedicatoria</button>
-          <button class="nav-btn" data-section="prologo">Prólogo</button>
-          <button class="nav-btn" data-section="bibliografia">Bibliografía</button>
-          <button class="nav-btn" data-section="capitulos">Capítulos</button>
-        </nav>
-      </aside>
-
-      <section class="content-panel">
-        <article id="resumen" class="panel active" aria-live="polite">
-          <h2>Palabras clave</h2>
-          <div id="keywordCloud" class="keyword-cloud"></div>
-          <p class="hint">
-            Usa la navegación lateral para acceder a cada sección del libro.
+    <main>
+      <section class="mx-auto grid w-full max-w-6xl gap-10 px-4 pb-14 pt-10 md:grid-cols-2 md:items-center md:px-6 md:pt-16">
+        <div class="cover-shell card-reveal">
+          <div class="cover-art" role="img" aria-label="Portada artística de Sombra en el Espejo"></div>
+        </div>
+        <div class="card-reveal delay-1">
+          <p class="eyebrow">Novela psicológica</p>
+          <h1 class="book-h1">Sombra en el Espejo</h1>
+          <p class="tagline">Todo reflejo oculta un pacto invisible. Todo silencio también.</p>
+          <p>
+            Una historia que se adentra en la violencia psicológica desde lo íntimo,
+            mostrando cómo lo cotidiano puede deformar la identidad hasta volverla irreconocible.
           </p>
-        </article>
+          <a href="ventas.html" class="btn-main btn-interact mt-6 inline-flex">Comprar Ahora</a>
+        </div>
+      </section>
 
-        <article id="dedicatoria" class="panel">
-          <h2>Dedicatoria</h2>
-          <div id="dedicationText" class="prose"></div>
+      <section id="sinopsis" class="mx-auto w-full max-w-6xl px-4 pb-14 md:px-6">
+        <article class="content-card card-reveal delay-2">
+          <h2 class="section-title">Sinopsis</h2>
+          <p class="text-justify">
+            Sombra en el Espejo recorre la anatomía del control emocional y la dependencia,
+            desde los gestos mínimos que parecen inofensivos hasta el momento en que todo
+            vínculo se convierte en una jaula invisible. A través de personajes complejos y
+            escenas de tensión contenida, el libro propone una lectura cruda pero necesaria
+            sobre los límites del amor, la percepción y la dignidad personal.
+          </p>
+          <blockquote class="quote-block">
+            "No fue un grito lo que rompió el espejo; fue la costumbre de hablar en voz baja."
+          </blockquote>
         </article>
+      </section>
 
-        <article id="prologo" class="panel">
-          <h2>Prólogo</h2>
-          <div id="prologueText" class="prose"></div>
-        </article>
-
-        <article id="bibliografia" class="panel">
-          <h2>Bibliografía</h2>
-          <div id="bibliographyText" class="prose"></div>
-        </article>
-
-        <article id="capitulos" class="panel chapter-panel">
-          <div class="chapter-toolbar">
-            <h2>Capítulos</h2>
-            <input
-              id="chapterSearch"
-              type="search"
-              placeholder="Buscar por título o contenido"
-              aria-label="Buscar capítulos"
-            />
-          </div>
-          <div class="chapter-layout">
-            <aside>
-              <ul id="chapterList" class="chapter-list"></ul>
-            </aside>
-            <section>
-              <h3 id="chapterTitle">Selecciona un capítulo</h3>
-              <div id="chapterBody" class="prose"></div>
-            </section>
+      <section class="mx-auto w-full max-w-6xl px-4 pb-20 md:px-6">
+        <article class="content-card card-reveal delay-3">
+          <h2 class="section-title">Sobre el Autor</h2>
+          <div class="grid gap-6 md:grid-cols-[auto_1fr] md:items-center">
+            <div class="author-avatar" aria-hidden="true">RR</div>
+            <p>
+              Rubs Rueda explora la narrativa de tensión emocional y los mecanismos del poder
+              afectivo en relaciones contemporáneas. Su trabajo combina observación psicológica,
+              ritmo literario y un enfoque crítico sobre la normalización del daño invisible.
+            </p>
           </div>
         </article>
       </section>
     </main>
 
-    <footer class="footer">
-      <p>
-        Si no se carga el contenido, abre este proyecto con un servidor local
-        para permitir la lectura del archivo Markdown.
+    <footer class="border-t border-slate-200/80 bg-paper/80 py-6">
+      <p class="mx-auto w-full max-w-6xl px-4 text-sm text-slate-600 md:px-6">
+        © 2026 Sombra en el Espejo. Sitio oficial del autor.
       </p>
     </footer>
 
-    <script src="script.js"></script>
+    <script src="main.js"></script>
   </body>
 </html>
