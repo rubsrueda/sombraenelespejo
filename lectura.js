@@ -172,8 +172,60 @@ function fallbackBibliography(lines) {
   return compact(lines.slice(citationStart, Math.min(citationStart + 180, lines.length)));
 }
 
+function extractStageBounds(lines) {
+  const markerRegex = /<!--\s*STAGE:\s*([A-ZÁÉÍÓÚ_]+)\s*(START|END)\s*-->/i;
+  const bounds = new Map();
+
+  lines.forEach((line, index) => {
+    const match = line.match(markerRegex);
+    if (!match) {
+      return;
+    }
+    const stage = match[1].toUpperCase();
+    const edge = match[2].toUpperCase();
+
+    if (!bounds.has(stage)) {
+      bounds.set(stage, { start: -1, end: -1 });
+    }
+    const node = bounds.get(stage);
+    if (edge === "START") {
+      node.start = index;
+    }
+    if (edge === "END") {
+      node.end = index;
+    }
+  });
+
+  return bounds;
+}
+
+function stageSlice(lines, bounds, stageName) {
+  const node = bounds.get(stageName);
+  if (!node || node.start < 0 || node.end <= node.start) {
+    return "";
+  }
+  return compact(lines.slice(node.start + 1, node.end));
+}
+
 function extractSections(text) {
   const lines = text.replace(/\r/g, "").split("\n");
+
+  const markerBounds = extractStageBounds(lines);
+  const markedPrologue = stageSlice(lines, markerBounds, "PROLOGO");
+  const markedIndex = stageSlice(lines, markerBounds, "INDICE");
+  const markedChapters = stageSlice(lines, markerBounds, "CAPITULOS");
+  const markedBibliography = stageSlice(lines, markerBounds, "BIBLIOGRAFIA");
+  const markedEpilogue = stageSlice(lines, markerBounds, "EPILOGO");
+
+  if (markedPrologue || markedIndex || markedChapters || markedBibliography || markedEpilogue) {
+    return {
+      prologue: markedPrologue || t("dynamic.lectura.noPrologue"),
+      chapters: markedChapters || t("dynamic.lectura.noChapters"),
+      epilogue: markedEpilogue || t("dynamic.lectura.noEpilogue"),
+      index: markedIndex || "Índice no disponible.",
+      bibliography: markedBibliography || "Bibliografía no disponible.",
+    };
+  }
 
   const prologueStart = findIndexByRegex(lines, /^PR[ÓO]LOGO:/i);
   const indexStart = findIndexByRegex(lines, /^[ÍI]ndice:\s*$/i, Math.max(0, prologueStart));
@@ -250,7 +302,15 @@ function renderSectionContent(tab) {
       return;
     }
 
-    if (/^(cap[ií]tulo|chapter|parte|part|secci[oó]n|ep[ií]logo|pr[oó]logo)\b/i.test(normalized)) {
+    if (/^(parte|part)\b/i.test(normalized)) {
+      articleParts.push(`<h3 class="reading-part-title">${formatInline(normalized)}</h3>`);
+      if (remainingLines) {
+        articleParts.push(`<p class="reading-paragraph">${formatInline(remainingLines.replace(/\n+/g, " "))}</p>`);
+      }
+      return;
+    }
+
+    if (/^(cap[ií]tulo|chapter|secci[oó]n|ep[ií]logo|pr[oó]logo)\b/i.test(normalized)) {
       articleParts.push(`<h3 class="reading-chapter-title">${formatInline(normalized)}</h3>`);
       const remainder = block
         .split("\n")

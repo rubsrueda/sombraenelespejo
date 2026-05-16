@@ -27,6 +27,7 @@ A mi hijo Hernán. Eres la razón de cada palabra escrita en este libro. Todo es
 
  
 
+<!-- STAGE: PROLOGO START -->
 PRÓLOGO: Hacia una Comprensión Integral de la Verdad Humana
 Este libro no es un manifiesto de ruptura, sino una defensa de la Verdad y el Vínculo. Existe una inmensa mayoría de mujeres —madres que ven con horror cómo sus hijos se apagan, hermanas que pierden al compañero de su infancia y amigas que observan la desaparición civil de hombres íntegros— que habitan hoy una orfandad silenciosa.
 Cuando un hombre es desmantelado por una psicopatología amparada en la ley, la tragedia es colectiva: una madre pierde el fruto de su crianza, una hermana pierde su pilar de apoyo y una hija es privada del amor soberano de su padre. Este libro es una invitación a recuperar juntos el derecho a la paz doméstica, denunciando la patología que, al destruir al hombre, victimiza colateralmente a todo el linaje femenino que lo rodea.
@@ -44,6 +45,8 @@ Sombras en el Espejo es, en esencia, un mapa de rescate. Es la herramienta para 
 
  
 
+<!-- STAGE: PROLOGO END -->
+<!-- STAGE: INDICE START -->
 Índice:
  
 PARTE I: EL CONTRATO SUBVERTIDO (Ingeniería Social y el Choque de Arquetipos)
@@ -104,6 +107,8 @@ Capítulo 15: La Identidad Post-Trauma: Reconstrucción, Resiliencia y Prevenci�
 
 El cierre definitivo del libro. El hombre ha escapado legalmente, pero su autoestima está erosionada y su identidad destruida. Este capítulo se enfoca en el trabajo terapéutico (la importancia de buscar un psicólogo sin sesgos de género que no lo re victimice). Se aborda el duelo por el tiempo perdido, cómo perdonarse a sí mismo por haber tolerado el abuso, y cómo detectar "banderas rojas" (red flags) en futuras relaciones. El libro no termina en tragedia, sino en la recuperación total de su dignidad, su libertad y su capacidad de volver a amar y confiar desde una posición de fortaleza y límites innegociables.
 
+<!-- STAGE: INDICE END -->
+<!-- STAGE: CAPITULOS START -->
 PARTE I: EL CONTRATO SUBVERTIDO
 (Ingeniería Social, Educación y el Choque de Arquetipos)
 
@@ -1128,6 +1133,8 @@ A Jorge, por unirme a ese círculo de hombres donde, por fin, aprendimos que exp
 
  
 
+<!-- STAGE: CAPITULOS END -->
+<!-- STAGE: BIBLIOGRAFIA START -->
 ### **Bibliografía Consultada**
  
 [3] Abuso Reactivo | Centro de Psicología Pericial.
@@ -1160,6 +1167,8 @@ A Jorge, por unirme a ese círculo de hombres donde, por fin, aprendimos que exp
 
 
 
+<!-- STAGE: BIBLIOGRAFIA END -->
+<!-- STAGE: EPILOGO START -->
 Epílogo: La Misión de la Restauración
  
 La misión fundamental de esta guía técnica ha sido descorrer el velo de un sufrimiento que, por décadas, ha carecido de nombre y reconocimiento institucional. El recorrido de estas páginas, desde la denuncia de la invisibilidad social hasta la disección de tácticas como el **gaslighting cronológico** y la **inversión de roles (DARVO)**, ha tenido un objetivo claro: desmantelar la estructura de impunidad que protege a la agresora y despoja al hombre de su soberanía personal [19-21].
@@ -1168,5 +1177,7 @@ Hemos explorado que el bloqueo emocional y el temblor involuntario del hombre no
  
 La misión de esta obra concluye con un llamado a la acción para profesionales de la salud, juristas y la sociedad en su conjunto: es hora de transitar hacia un enfoque de **"violencia es violencia"** [25, 26], donde la justicia no sea un instrumento de maltrato adicional para el hombre y donde la vulnerabilidad sea atendida con dignidad y sin prejuicios [27, 28]. Recuperar al hombre maltratado no es solo un acto de justicia individual; es un paso esencial para romper el ciclo generacional de agresión y construir comunidades más seguras, sanas y verdaderamente equitativas [1, 29, 30].
  
+<!-- STAGE: EPILOGO END -->
+
 
 

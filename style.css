@@ -417,6 +417,19 @@ textarea {
   color: #0f172a;
 }
 
+.reading-part-title {
+  margin-top: 1.55rem;
+  margin-bottom: 0.75rem;
+  font-family: "Playfair Display", serif;
+  font-size: clamp(1.2rem, 3vw, 1.75rem);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #1d3557;
+  border-top: 1px solid rgba(15, 23, 42, 0.18);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.18);
+  padding: 0.45rem 0;
+}
+
 .reading-subtitle {
   font-size: clamp(1.1rem, 2.7vw, 1.5rem);
   border-left: 3px solid rgba(212, 175, 55, 0.8);
@@ -426,6 +439,8 @@ textarea {
 .reading-chapter-title {
   font-size: clamp(1.15rem, 2.9vw, 1.6rem);
   letter-spacing: 0.01em;
+  border-left: 3px solid rgba(29, 53, 87, 0.65);
+  padding-left: 0.55rem;
 }
 
 .reading-paragraph,
