@@ -1,6 +1,6 @@
 import { CATALOGO, PRODUCTO_ACTUAL } from "./producto-config.js";
-import { applyCheckoutGrantFromUrl, hasAccess } from "./access-control.js";
-import { resolveAccess, saveEntitlementForCurrentUser } from "./entitlements.js";
+import { applyCheckoutGrantFromUrl } from "./access-control.js";
+import { saveEntitlementForCurrentUser } from "./entitlements.js";
 import { getCurrentLang, getProductI18n, t } from "./i18n.js";
 
 const benefitsGrid = document.getElementById("benefitsGrid");
@@ -9,7 +9,6 @@ const salesTransparencyText = document.getElementById("salesTransparencyText");
 const productTitle = document.getElementById("productTitle");
 const productSubtitle = document.getElementById("productSubtitle");
 const accessStatus = document.getElementById("accessStatus");
-const checkoutSetupHint = document.getElementById("checkoutSetupHint");
 
 function formatPrice(value, currency) {
   const useDecimals = currency !== "MXN";
@@ -67,15 +66,6 @@ function createTierCard(item) {
 
 function renderPage() {
   const localized = getProductI18n(getCurrentLang());
-  const successUrl = new URL("ventas.html", window.location.href);
-  successUrl.search = "";
-  successUrl.hash = "";
-  successUrl.searchParams.set(CATALOGO.accesoRetornoUrlParam, "success");
-
-  const tokenUrl = new URL("ventas.html", window.location.href);
-  tokenUrl.search = "";
-  tokenUrl.hash = "";
-  tokenUrl.searchParams.set(CATALOGO.accesoUrlParam, PRODUCTO_ACTUAL.accessGrantToken);
 
   productTitle.textContent = localized.name;
   productSubtitle.textContent = t("dynamic.buy.productSubtitle", { platform: PRODUCTO_ACTUAL.plataforma });
@@ -87,17 +77,16 @@ function renderPage() {
   productTiers.appendChild(createTierCard(PRODUCTO_ACTUAL));
 
   salesTransparencyText.textContent = localized.transparency;
-  checkoutSetupHint.innerHTML = t("dynamic.buy.checkoutHint", {
-    successUrl: successUrl.toString(),
-    tokenUrl: tokenUrl.toString(),
-  });
 }
 
-function renderAccessStatus() {
-  const unlocked = hasAccess(PRODUCTO_ACTUAL.accessGrantId);
-  accessStatus.innerHTML = unlocked
-    ? t("dynamic.buy.activeAccess")
-    : t("dynamic.buy.pendingAccess");
+function renderCheckoutNotice(shouldShow) {
+  if (!accessStatus) {
+    return;
+  }
+  accessStatus.classList.toggle("hidden", !shouldShow);
+  if (shouldShow) {
+    accessStatus.innerHTML = t("dynamic.buy.activeAccess");
+  }
 }
 
 const checkoutGranted = applyCheckoutGrantFromUrl({
@@ -114,21 +103,11 @@ if (checkoutGranted) {
 }
 
 renderPage();
-renderAccessStatus();
-
-resolveAccess(PRODUCTO_ACTUAL.accessGrantId)
-  .then((unlocked) => {
-    accessStatus.innerHTML = unlocked
-      ? t("dynamic.buy.activeAccess")
-      : t("dynamic.buy.pendingAccess");
-  })
-  .catch(() => {
-    renderAccessStatus();
-  });
+renderCheckoutNotice(checkoutGranted);
 
 window.addEventListener("af:languageChanged", () => {
   benefitsGrid.innerHTML = "";
   productTiers.innerHTML = "";
   renderPage();
-  renderAccessStatus();
+  renderCheckoutNotice(checkoutGranted);
 });

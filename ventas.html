@@ -55,12 +55,12 @@
         <p data-i18n="pages.ventas.eyebrow" class="eyebrow">Compra oficial</p>
         <h1 id="productTitle" data-i18n="pages.ventas.loadingProduct" class="book-h1 mb-4">Cargando producto...</h1>
         <p id="productSubtitle"></p>
-        <div id="accessStatus" class="notice mt-4"></div>
+        <div id="accessStatus" class="notice mt-4 hidden"></div>
       </section>
 
       <section class="mt-6 grid gap-4 md:grid-cols-3" id="benefitsGrid"></section>
 
-      <section class="mt-6">
+      <section id="buySection" class="mt-6">
         <h2 data-i18n="pages.ventas.buyBook" class="section-title">Compra del Libro</h2>
         <p data-i18n="pages.ventas.buyBookLead" class="mb-4">Hay un único libro activo en este momento, con arquitectura lista para ampliar catálogo.</p>
         <div id="productTiers" class="grid gap-4 md:grid-cols-1"></div>
@@ -71,13 +71,6 @@
         <p id="salesTransparencyText"></p>
       </section>
 
-      <section class="mt-6 sales-card card-reveal delay-2">
-        <h2 data-i18n="pages.ventas.optionalEmbed" class="section-title">Embed Opcional de Checkout</h2>
-        <p id="checkoutSetupHint" class="mb-3"></p>
-        <div data-i18n="pages.ventas.embedHint" data-i18n-html class="mt-4 rounded-[12px] border border-dashed border-slate-400/70 bg-slate-50 p-4 text-sm text-slate-600" id="embedHint">
-          &lt;!-- Inserta aquí tu código de Stripe Checkout embebido o Gumroad --&gt;
-        </div>
-      </section>
     </main>
 
     <script type="module" src="i18n-init.js"></script>
