@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Afiliados | Abel de Ferro</title>
+    <meta name="description" content="Panel administrador de afiliados con top refs, conversiones y compras por origen." />
+    <meta name="robots" content="noindex,nofollow" />
+    <link rel="canonical" href="https://rubsrueda.github.io/sombraenelespejo/admin-afiliados.html" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              night: "#0f172a",
+              gold: "#d4af37",
+              paper: "#f8fafc",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="site-bg text-slate-800">
+    <header class="sticky top-0 z-50 border-b border-slate-200/70 bg-paper/90 backdrop-blur">
+      <nav class="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 md:px-6" aria-label="Principal">
+        <a href="index.html" class="brand-mark">Abel de Ferro</a>
+        <button id="mobileMenuBtn" class="menu-btn md:hidden" aria-expanded="false" aria-controls="mobileMenu">Menú</button>
+        <ul class="hidden items-center gap-2 md:flex">
+          <li><a class="nav-link" href="index.html">Inicio</a></li>
+          <li><a class="nav-link" href="ventas.html">Comprar</a></li>
+          <li><a class="nav-link" href="login.html">Login</a></li>
+          <li><a class="nav-link" href="admin-afiliados.html">Admin Afiliados</a></li>
+        </ul>
+      </nav>
+      <div id="mobileMenu" class="mx-auto hidden w-full max-w-6xl px-4 pb-4 md:hidden">
+        <a class="mobile-link" href="index.html">Inicio</a>
+        <a class="mobile-link" href="ventas.html">Comprar</a>
+        <a class="mobile-link" href="login.html">Login</a>
+        <a class="mobile-link" href="admin-afiliados.html">Admin Afiliados</a>
+      </div>
+    </header>
+
+    <main class="mx-auto w-full max-w-6xl px-4 pb-16 pt-10 md:px-6">
+      <section class="sales-card card-reveal">
+        <p class="eyebrow">Backoffice</p>
+        <h1 class="book-h1 mb-2">Panel Admin de Afiliados</h1>
+        <p class="mb-4">Métricas agregadas desde af_logs y af_compras en Supabase.</p>
+        <div id="adminStatus" class="notice">Validando acceso...</div>
+        <button id="refreshAffiliateStats" class="btn-secondary btn-interact mt-4" type="button">Actualizar métricas</button>
+      </section>
+
+      <section class="mt-6 grid gap-4 md:grid-cols-3">
+        <article class="sales-card">
+          <h2 class="section-title">Top refs (eventos)</h2>
+          <p id="totalRefs" class="tier-price">0</p>
+        </article>
+        <article class="sales-card">
+          <h2 class="section-title">Conversiones</h2>
+          <p id="totalConversions" class="tier-price">0</p>
+        </article>
+        <article class="sales-card">
+          <h2 class="section-title">Compras</h2>
+          <p id="totalPurchases" class="tier-price">0</p>
+        </article>
+      </section>
+
+      <section class="mt-6 grid gap-6 md:grid-cols-3">
+        <article class="sales-card overflow-x-auto">
+          <h2 class="section-title">Top refs</h2>
+          <table class="w-full text-left">
+            <thead>
+              <tr class="border-b border-slate-300">
+                <th class="p-2 text-sm">Origen</th>
+                <th class="p-2 text-sm">Eventos</th>
+              </tr>
+            </thead>
+            <tbody id="topRefsTable"></tbody>
+          </table>
+        </article>
+
+        <article class="sales-card overflow-x-auto">
+          <h2 class="section-title">Conversiones</h2>
+          <table class="w-full text-left">
+            <thead>
+              <tr class="border-b border-slate-300">
+                <th class="p-2 text-sm">Origen</th>
+                <th class="p-2 text-sm">Conversiones</th>
+              </tr>
+            </thead>
+            <tbody id="conversionsTable"></tbody>
+          </table>
+        </article>
+
+        <article class="sales-card overflow-x-auto">
+          <h2 class="section-title">Compras por origen</h2>
+          <table class="w-full text-left">
+            <thead>
+              <tr class="border-b border-slate-300">
+                <th class="p-2 text-sm">Origen</th>
+                <th class="p-2 text-sm">Compras</th>
+              </tr>
+            </thead>
+            <tbody id="purchasesTable"></tbody>
+          </table>
+        </article>
+      </section>
+    </main>
+
+    <script type="module" src="main.js"></script>
+    <script type="module" src="admin-afiliados.js"></script>
+  </body>
+</html>
