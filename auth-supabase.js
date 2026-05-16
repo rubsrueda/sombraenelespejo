@@ -1,4 +1,5 @@
 import { supabase } from "./supabase-client.js";
+import { getAttributionSnapshot } from "./affiliate.js";
 
 // Autenticación y registro de usuario con Supabase
 
@@ -7,18 +8,31 @@ export async function signInWithEmail(email, password) {
 }
 
 export async function signUpWithEmail(email, password, nombre, idioma) {
+  const attribution = getAttributionSnapshot({ auth_method: "email" });
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      data: { nombre, idioma },
+      data: { nombre, idioma, attribution },
     },
   });
   return { data, error };
 }
 
 export async function signInWithGoogle() {
-  return await supabase.auth.signInWithOAuth({ provider: "google" });
+  return await signInWithProvider("google");
+}
+
+export async function signInWithProvider(provider) {
+  const supported = ["google", "facebook", "twitter"];
+  if (!supported.includes(provider)) {
+    return {
+      data: null,
+      error: new Error(`Proveedor no soportado en Supabase: ${provider}`),
+    };
+  }
+
+  return await supabase.auth.signInWithOAuth({ provider });
 }
 
 export async function signOut() {
@@ -35,6 +49,40 @@ export async function upsertUsuario({ email, nombre, idioma }) {
   return await supabase.from("af_usuarios").upsert([
     { email, nombre, idioma, ultimo_login: new Date().toISOString() },
   ], { onConflict: ["email"] });
+}
+
+async function getUsuarioIdByEmail(email) {
+  const { data } = await supabase
+    .from("af_usuarios")
+    .select("id")
+    .eq("email", email)
+    .maybeSingle();
+  return data?.id || null;
+}
+
+export async function logAuthAction(accion, email, detalles = {}) {
+  if (!email) {
+    return;
+  }
+
+  try {
+    const usuarioId = await getUsuarioIdByEmail(email);
+    const enriched = {
+      ...getAttributionSnapshot(),
+      ...detalles,
+    };
+
+    await supabase.from("af_logs").insert([
+      {
+        usuario_id: usuarioId,
+        email,
+        accion,
+        detalles: enriched,
+      },
+    ]);
+  } catch {
+    // Evita bloquear la autenticación si falla logging.
+  }
 }
 
 // Recuperación de contraseña por email

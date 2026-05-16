@@ -1,9 +1,15 @@
-import { signInWithEmail, signUpWithEmail, signInWithGoogle, signOut, getCurrentUser, upsertUsuario, resetPassword } from "./auth-supabase.js";
+import { signInWithEmail, signUpWithEmail, signInWithGoogle, signInWithProvider, signOut, getCurrentUser, upsertUsuario, resetPassword, logAuthAction } from "./auth-supabase.js";
+import { setPreferredLoginOrigin } from "./affiliate.js";
+import { trackEvent } from "./analytics.js";
 import { t } from "./i18n.js";
 
 const loginNotice = document.getElementById("loginNotice");
 const authFeedback = document.getElementById("authFeedback");
 const googleLoginBtn = document.getElementById("googleLoginBtn");
+const facebookLoginBtn = document.getElementById("facebookLoginBtn");
+const xLoginBtn = document.getElementById("xLoginBtn");
+const tiktokOriginBtn = document.getElementById("tiktokOriginBtn");
+const redditOriginBtn = document.getElementById("redditOriginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const emailLoginBtn = document.getElementById("emailLoginBtn");
 const emailRegisterBtn = document.getElementById("emailRegisterBtn");
@@ -57,11 +63,53 @@ async function updateLoginStatus() {
 
 googleLoginBtn.addEventListener("click", async () => {
   try {
+    setPreferredLoginOrigin("google");
+    trackEvent("af_login_attempt", { method: "google" });
     await signInWithGoogle();
     authFeedback.textContent = t("dynamic.login.redirectGoogle");
   } catch (error) {
     authFeedback.textContent = t("dynamic.login.googleError", { message: error.message });
   }
+});
+
+facebookLoginBtn.addEventListener("click", async () => {
+  try {
+    setPreferredLoginOrigin("facebook");
+    trackEvent("af_login_attempt", { method: "facebook" });
+    const { error } = await signInWithProvider("facebook");
+    if (error) {
+      throw error;
+    }
+    authFeedback.textContent = "Redirigiendo a Facebook...";
+  } catch (error) {
+    authFeedback.textContent = `Error con Facebook: ${error.message}`;
+  }
+});
+
+xLoginBtn.addEventListener("click", async () => {
+  try {
+    setPreferredLoginOrigin("x");
+    trackEvent("af_login_attempt", { method: "x" });
+    const { error } = await signInWithProvider("twitter");
+    if (error) {
+      throw error;
+    }
+    authFeedback.textContent = "Redirigiendo a X...";
+  } catch (error) {
+    authFeedback.textContent = `Error con X: ${error.message}`;
+  }
+});
+
+tiktokOriginBtn.addEventListener("click", () => {
+  setPreferredLoginOrigin("tiktok");
+  trackEvent("af_origin_selected", { origin: "tiktok" });
+  authFeedback.textContent = "Origen TikTok guardado. Puedes continuar con Google o Email para iniciar sesión.";
+});
+
+redditOriginBtn.addEventListener("click", () => {
+  setPreferredLoginOrigin("reddit");
+  trackEvent("af_origin_selected", { origin: "reddit" });
+  authFeedback.textContent = "Origen Reddit guardado. Puedes continuar con Google o Email para iniciar sesión.";
 });
 
 emailLoginBtn.addEventListener("click", async () => {
@@ -76,6 +124,8 @@ emailLoginBtn.addEventListener("click", async () => {
     return;
   }
   await upsertUsuario({ email, nombre: "", idioma: navigator.language });
+  await logAuthAction("login_email", email, { metodo: "email" });
+  trackEvent("af_login_success", { method: "email" });
   authFeedback.textContent = t("dynamic.login.loginOk");
   updateLoginStatus();
 });
@@ -92,6 +142,8 @@ emailRegisterBtn.addEventListener("click", async () => {
     return;
   }
   await upsertUsuario({ email, nombre: "", idioma: navigator.language });
+  await logAuthAction("registro_email", email, { metodo: "email" });
+  trackEvent("af_signup_success", { method: "email" });
   authFeedback.textContent = t("dynamic.login.registerOk");
   updateLoginStatus();
 });

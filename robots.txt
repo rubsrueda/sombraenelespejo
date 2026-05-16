@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://rubsrueda.github.io/sombraenelespejo/sitemap.xml

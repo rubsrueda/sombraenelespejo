@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login | Abel de Ferro</title>
+    <meta name="description" content="Inicia sesión en Sombra en el Espejo con email o acceso social para comunidad y contenido." />
+    <meta name="robots" content="noindex,follow" />
+    <link rel="canonical" href="https://rubsrueda.github.io/sombraenelespejo/login.html" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -59,6 +62,10 @@
 
         <div class="mb-4 flex flex-wrap gap-3">
           <button id="googleLoginBtn" data-i18n="pages.login.google" class="btn-main btn-interact" type="button">Entrar con Google</button>
+          <button id="facebookLoginBtn" class="btn-secondary btn-interact" type="button">Entrar con Facebook</button>
+          <button id="xLoginBtn" class="btn-secondary btn-interact" type="button">Entrar con X</button>
+          <button id="tiktokOriginBtn" class="btn-secondary btn-interact" type="button">Vengo de TikTok</button>
+          <button id="redditOriginBtn" class="btn-secondary btn-interact" type="button">Vengo de Reddit</button>
           <button id="logoutBtn" data-i18n="pages.login.logout" class="btn-danger btn-interact" type="button">Cerrar sesión</button>
         </div>
 
@@ -85,7 +92,7 @@
     </main>
 
     <script type="module" src="i18n-init.js"></script>
-    <script src="main.js"></script>
+    <script type="module" src="main.js"></script>
     <script type="module" src="login.js"></script>
   </body>
 </html>

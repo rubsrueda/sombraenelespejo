@@ -1,5 +1,7 @@
 import { hasAccess, grantAccess } from "./access-control.js";
 import { supabase } from "./supabase-client.js";
+import { getAttributionSnapshot } from "./affiliate.js";
+import { trackEvent } from "./analytics.js";
 
 export async function getCurrentUser() {
   const { data } = await supabase.auth.getUser();
@@ -69,11 +71,22 @@ export async function saveEntitlementForCurrentUser(grantId) {
         exito: true,
         metadata: {
           origen: "checkout_redirect",
+          ...getAttributionSnapshot({ grant_id: grantId }),
         },
       },
     ]);
 
+    await supabase.from("af_logs").insert([
+      {
+        usuario_id: usuario.id,
+        email: user.email,
+        accion: "compra_asignada",
+        detalles: getAttributionSnapshot({ grant_id: grantId }),
+      },
+    ]);
+
     grantAccess(grantId);
+    trackEvent("af_purchase_attributed", { grant_id: grantId });
     return true;
   } catch {
     return false;
