@@ -306,3 +306,68 @@ textarea {
     font-size: 4rem;
   }
 }
+
+@media (max-width: 700px) {
+  body {
+    font-size: 0.98rem;
+    line-height: 1.6;
+  }
+
+  .book-h1 {
+    font-size: clamp(1.7rem, 7.2vw, 2.3rem);
+    line-height: 1.12;
+  }
+
+  .brand-mark {
+    font-size: 1.05rem;
+  }
+
+  .nav-link,
+  .mobile-link {
+    padding: 0.2rem 0.55rem;
+    font-size: 0.88rem;
+  }
+
+  .cover-art {
+    min-height: 260px;
+  }
+
+  .btn-main,
+  .btn-secondary,
+  .btn-danger {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+@media (max-height: 420px) and (orientation: landscape) {
+  .site-bg {
+    min-height: auto;
+  }
+
+  header.sticky {
+    position: static;
+  }
+
+  .book-h1 {
+    font-size: 1.55rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .cover-art {
+    min-height: 200px;
+  }
+
+  .content-card,
+  .form-card,
+  .review-card,
+  .sales-card {
+    padding: 0.85rem;
+  }
+
+  main {
+    padding-top: 0.8rem;
+    padding-bottom: 1rem;
+  }
+}
