@@ -3,6 +3,11 @@ import { getAttributionSnapshot } from "./affiliate.js";
 
 // Autenticación y registro de usuario con Supabase
 
+function buildAppUrl(targetPath = "login.html") {
+  const basePath = window.location.pathname.replace(/[^/]*$/, "");
+  return `${window.location.origin}${basePath}${targetPath}`;
+}
+
 export async function signInWithEmail(email, password) {
   return await supabase.auth.signInWithPassword({ email, password });
 }
@@ -32,7 +37,12 @@ export async function signInWithProvider(provider) {
     };
   }
 
-  return await supabase.auth.signInWithOAuth({ provider });
+  return await supabase.auth.signInWithOAuth({
+    provider,
+    options: {
+      redirectTo: buildAppUrl("login.html"),
+    },
+  });
 }
 
 export async function signOut() {
@@ -88,7 +98,7 @@ export async function logAuthAction(accion, email, detalles = {}) {
 // Recuperación de contraseña por email
 export async function resetPassword(email) {
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/login.html`,
+    redirectTo: buildAppUrl("login.html"),
   });
   return { error };
 }
