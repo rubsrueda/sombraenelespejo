@@ -83,6 +83,23 @@ function compact(lines) {
   return lines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
 }
 
+function escapeHtml(text = "") {
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function formatInline(text = "") {
+  const escaped = escapeHtml(text);
+  return escaped
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*([^*]+)\*/g, "<em>$1</em>")
+    .replace(/`([^`]+)`/g, "<code>$1</code>");
+}
+
 function cut(text, max = 6000) {
   if (text.length <= max) {
     return text;
@@ -142,6 +159,76 @@ function extractSections(text) {
     index: getSection(lines, "index") || "Índice no disponible.",
     bibliography: getSection(lines, "bibliography") || fallbackBibliography(lines) || "Bibliografía no disponible.",
   };
+}
+
+function cleanHeading(raw = "") {
+  return raw
+    .replace(/^#{1,6}\s+/, "")
+    .replace(/^[-*]\s+/, "")
+    .trim();
+}
+
+function renderSectionContent(tab) {
+  const sectionId = tab?.id || "chapters";
+  const source = String(tab?.content || "").trim();
+  const blocks = source
+    .split(/\n{2,}/)
+    .map((block) => block.trim())
+    .filter(Boolean);
+
+  const articleParts = [];
+
+  blocks.forEach((block, index) => {
+    const firstLine = block.split("\n")[0]?.trim() || "";
+    const normalized = cleanHeading(firstLine);
+    const compactBlock = block.replace(/\n+/g, " ").trim();
+    const formattedCompact = formatInline(compactBlock);
+
+    if (index === 0) {
+      articleParts.push(`<h2 class="reading-stage-main-title">${formatInline(normalized || tab.label)}</h2>`);
+      return;
+    }
+
+    if (/^#{1,6}\s+/.test(firstLine)) {
+      articleParts.push(`<h3 class="reading-subtitle">${formatInline(cleanHeading(firstLine))}</h3>`);
+      return;
+    }
+
+    if (/^(cap[ií]tulo|chapter|parte|part|secci[oó]n|ep[ií]logo|pr[oó]logo)\b/i.test(normalized)) {
+      articleParts.push(`<h3 class="reading-chapter-title">${formatInline(normalized)}</h3>`);
+      const remainder = block
+        .split("\n")
+        .slice(1)
+        .join("\n")
+        .trim();
+      if (remainder) {
+        articleParts.push(`<p class="reading-paragraph">${formatInline(remainder.replace(/\n+/g, " "))}</p>`);
+      }
+      return;
+    }
+
+    if (sectionId === "index" && /^(\d+[\.)]|cap[ií]tulo\s+\d+)/i.test(normalized)) {
+      articleParts.push(`<p class="reading-index-item">${formattedCompact}</p>`);
+      return;
+    }
+
+    if (sectionId === "bibliography" && /^(\[\d+\]|\d+[\.)]|•|-)\s+/.test(firstLine)) {
+      articleParts.push(`<p class="reading-biblio-item">${formatInline(block.replace(/\n+/g, " "))}</p>`);
+      return;
+    }
+
+    articleParts.push(`<p class="reading-paragraph">${formattedCompact}</p>`);
+  });
+
+  return `
+    <article class="reading-body stage-${sectionId}">
+      <header class="reading-stage-header">
+        <p class="reading-stage-kicker">Etapa</p>
+        <h2 class="reading-stage-title">${formatInline(tab.label)}</h2>
+      </header>
+      ${articleParts.join("\n")}
+    </article>
+  `;
 }
 
 async function loadBook() {
@@ -250,7 +337,7 @@ async function init() {
       .join("");
 
     // Mostrar primera sección por defecto
-    sectionContent.textContent = availableTabs[0].content;
+    sectionContent.innerHTML = renderSectionContent(availableTabs[0]);
 
     // Event listeners para tabs
     const tabButtons = document.querySelectorAll(".tab-btn");
@@ -266,7 +353,7 @@ async function init() {
         btn.classList.add("active");
 
         // Mostrar contenido
-        sectionContent.textContent = tab.content;
+        sectionContent.innerHTML = renderSectionContent(tab);
       });
     });
 
@@ -283,7 +370,7 @@ async function init() {
     }
   } catch (error) {
     console.error("Error cargando lectura:", error);
-    sectionContent.textContent = error.message || "Error cargando el contenido.";
+    sectionContent.innerHTML = `<p class="reading-paragraph">${escapeHtml(error.message || "Error cargando el contenido.")}</p>`;
   }
 }
 

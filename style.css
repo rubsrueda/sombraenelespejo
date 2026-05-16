@@ -369,6 +369,121 @@ textarea {
   font-weight: 600;
 }
 
+.reading-body {
+  max-width: 78ch;
+  margin: 0 auto;
+  color: #1f2937;
+}
+
+.reading-stage-header {
+  margin-bottom: 1.4rem;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.14), rgba(15, 23, 42, 0.03));
+  padding: 0.85rem 1rem;
+}
+
+.reading-stage-kicker {
+  margin: 0;
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #7c6640;
+  font-weight: 700;
+}
+
+.reading-stage-title {
+  margin: 0.35rem 0 0;
+  font-family: "Playfair Display", serif;
+  font-size: clamp(1.3rem, 3vw, 1.9rem);
+  line-height: 1.2;
+  color: #0f172a;
+}
+
+.reading-stage-main-title {
+  margin: 0 0 1rem;
+  font-family: "Playfair Display", serif;
+  font-size: clamp(1.5rem, 4vw, 2.3rem);
+  line-height: 1.15;
+  color: #0f172a;
+  text-wrap: balance;
+}
+
+.reading-subtitle,
+.reading-chapter-title {
+  margin-top: 1.3rem;
+  margin-bottom: 0.6rem;
+  font-family: "Playfair Display", serif;
+  color: #0f172a;
+}
+
+.reading-subtitle {
+  font-size: clamp(1.1rem, 2.7vw, 1.5rem);
+  border-left: 3px solid rgba(212, 175, 55, 0.8);
+  padding-left: 0.55rem;
+}
+
+.reading-chapter-title {
+  font-size: clamp(1.15rem, 2.9vw, 1.6rem);
+  letter-spacing: 0.01em;
+}
+
+.reading-paragraph,
+.reading-index-item,
+.reading-biblio-item {
+  margin: 0 0 1.05rem;
+  font-size: 1.02rem;
+  line-height: 1.85;
+  color: #1f2937;
+  text-wrap: pretty;
+}
+
+.reading-index-item {
+  padding-left: 0.95rem;
+  border-left: 2px solid rgba(15, 23, 42, 0.14);
+}
+
+.reading-biblio-item {
+  font-size: 0.96rem;
+  line-height: 1.7;
+  color: #334155;
+  padding: 0.35rem 0.65rem;
+  border-radius: 8px;
+  background: rgba(248, 250, 252, 0.85);
+  border: 1px solid rgba(15, 23, 42, 0.09);
+}
+
+.stage-prologue .reading-stage-main-title,
+.stage-prologue .reading-stage-title {
+  color: #1d3557;
+}
+
+.stage-index .reading-stage-main-title,
+.stage-index .reading-stage-title {
+  color: #1f2937;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: clamp(1.2rem, 3vw, 1.7rem);
+}
+
+.stage-chapters .reading-stage-main-title,
+.stage-chapters .reading-stage-title {
+  color: #2b2d42;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.stage-bibliography .reading-stage-main-title,
+.stage-bibliography .reading-stage-title {
+  color: #394867;
+  font-size: clamp(1.18rem, 2.9vw, 1.6rem);
+}
+
+.stage-epilogue .reading-stage-main-title,
+.stage-epilogue .reading-stage-title {
+  color: #5a189a;
+  font-style: italic;
+}
+
 .reviews-layout {
   display: grid;
   gap: 1rem;
