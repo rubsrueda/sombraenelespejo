@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Prólogo | Abel de Ferro</title>
-    <meta name="description" content="Lee el prólogo completo de Sombra en el Espejo." />
+    <title>Libros | Abel de Ferro</title>
+    <meta name="description" content="Tu biblioteca: continúa la lectura de tus libros activos o compra nuevos títulos." />
     <meta name="robots" content="index,follow" />
-    <link rel="canonical" href="https://rubsrueda.github.io/sombraenelespejo/prologo.html" />
+    <link rel="canonical" href="https://rubsrueda.github.io/sombraenelespejo/libros.html" />
     <link rel="stylesheet" href="tailwind.css" />
     <link rel="stylesheet" href="style.css" />
   </head>
-  <body class="site-bg text-slate-800">
+  <body data-page="libros" class="site-bg text-slate-800">
     <header class="sticky top-0 z-50 border-b border-slate-200/70 bg-paper/90 backdrop-blur">
       <nav class="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 md:px-6" aria-label="Principal">
         <a href="autor.html" class="brand-mark">Abel de Ferro</a>
@@ -33,17 +33,17 @@
     </header>
 
     <main class="mx-auto w-full max-w-6xl px-4 pb-16 pt-10 md:px-6">
-      <section class="content-card card-reveal">
-        <p class="eyebrow">Apertura de obra</p>
-        <h1 class="book-h1 mb-2">Prólogo</h1>
-        <article>
-          <h2 id="prologueTitle" class="section-title">Cargando prólogo...</h2>
-          <div id="prologueBody" class="whitespace-pre-wrap text-justify"></div>
-        </article>
+      <section class="sales-card card-reveal">
+        <p class="eyebrow">Biblioteca</p>
+        <h1 class="book-h1 mb-3">Tus libros</h1>
+        <p>Si ya tienes acceso, continúa lectura. Si no, compra desde la ficha del libro.</p>
+        <div id="libraryStatus" class="notice mt-4">Comprobando acceso...</div>
       </section>
+
+      <section id="libraryGrid" class="mt-6 grid gap-4 md:grid-cols-2"></section>
     </main>
 
     <script type="module" src="main.js"></script>
-    <script type="module" src="prologo.js"></script>
+    <script type="module" src="libros.js"></script>
   </body>
 </html>

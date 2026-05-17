@@ -10,6 +10,18 @@ const salesTransparencyText = document.getElementById("salesTransparencyText");
 const productTitle = document.getElementById("productTitle");
 const productSubtitle = document.getElementById("productSubtitle");
 const accessStatus = document.getElementById("accessStatus");
+const currentUrl = new URL(window.location.href);
+
+function getSelectedProduct() {
+  const requestedId = currentUrl.searchParams.get("product");
+  if (!requestedId) {
+    return PRODUCTO_ACTUAL;
+  }
+  const requested = CATALOGO.productos.find((item) => item.id === requestedId && item.activo);
+  return requested || PRODUCTO_ACTUAL;
+}
+
+const SELECTED_PRODUCT = getSelectedProduct();
 
 function formatPrice(value, currency) {
   const useDecimals = currency !== "MXN";
@@ -109,7 +121,7 @@ function createTierCard(item, { unlocked = false } = {}) {
 
   let cta = "";
   if (unlocked) {
-    cta = `<a href="lectura.html" class="btn-main btn-interact inline-flex">Ir a lectura</a>`;
+    cta = `<a href="lectura.html?product=${encodeURIComponent(item.id)}" class="btn-main btn-interact inline-flex">Ir a lectura</a>`;
   } else if (item.enlaceCheckoutActivo) {
     cta = `<a href="${item.enlaceCheckout}" target="_blank" rel="noopener noreferrer" class="btn-main btn-interact inline-flex">${t("common.actions.buyNow")}</a>`;
   } else {
@@ -131,13 +143,13 @@ function renderPage({ unlocked = false } = {}) {
   const localized = getProductI18n(getCurrentLang());
 
   productTitle.textContent = localized.name;
-  productSubtitle.textContent = t("dynamic.buy.productSubtitle", { platform: PRODUCTO_ACTUAL.plataforma });
+  productSubtitle.textContent = t("dynamic.buy.productSubtitle", { platform: SELECTED_PRODUCT.plataforma });
 
   // Enfoca la experiencia en un único producto de compra.
   benefitsGrid.innerHTML = "";
   benefitsGrid.classList.add("hidden");
 
-  productTiers.appendChild(createTierCard(PRODUCTO_ACTUAL, { unlocked }));
+  productTiers.appendChild(createTierCard(SELECTED_PRODUCT, { unlocked }));
 
   salesTransparencyText.textContent = localized.transparency;
 }
@@ -163,28 +175,28 @@ const state = {
 };
 
 async function init() {
-  if (!PRODUCTO_ACTUAL) {
-    console.error("PRODUCTO_ACTUAL no está disponible en ventas-producto.js");
+  if (!SELECTED_PRODUCT) {
+    console.error("No hay producto activo disponible en ventas-producto.js");
     return;
   }
 
   state.checkoutGranted = applyCheckoutGrantFromUrl({
-    token: PRODUCTO_ACTUAL.accessGrantToken,
-    grantId: PRODUCTO_ACTUAL.accessGrantId,
+    token: SELECTED_PRODUCT.accessGrantToken,
+    grantId: SELECTED_PRODUCT.accessGrantId,
     accessParam: CATALOGO.accesoUrlParam,
     returnParam: CATALOGO.accesoRetornoUrlParam,
   });
 
   if (state.checkoutGranted) {
-    saveEntitlementForCurrentUser(PRODUCTO_ACTUAL.accessGrantId).catch(() => {
+    saveEntitlementForCurrentUser(SELECTED_PRODUCT.accessGrantId).catch(() => {
       // Mantiene acceso local incluso si no hay sesión o falla la escritura remota.
     });
   }
 
   const user = await getCurrentUser().catch(() => null);
   state.adminUnlocked = isAdminUser(user);
-  const localUnlocked = hasAccess(PRODUCTO_ACTUAL.accessGrantId);
-  const remoteUnlocked = await resolveAccess(PRODUCTO_ACTUAL.accessGrantId).catch(() => false);
+  const localUnlocked = hasAccess(SELECTED_PRODUCT.accessGrantId);
+  const remoteUnlocked = await resolveAccess(SELECTED_PRODUCT.accessGrantId).catch(() => false);
   state.unlocked = state.checkoutGranted || localUnlocked || remoteUnlocked || state.adminUnlocked;
 
   renderPage({ unlocked: state.unlocked });
@@ -198,14 +210,15 @@ async function init() {
 init();
 
 window.addEventListener("af:languageChanged", () => {
-  if (PRODUCTO_ACTUAL) {
-    benefitsGrid.innerHTML = "";
-    productTiers.innerHTML = "";
-    renderPage({ unlocked: state.unlocked });
-    renderCheckoutNotice({
-      checkoutGranted: state.checkoutGranted,
-      unlocked: state.unlocked,
-      adminUnlocked: state.adminUnlocked,
-    });
+  if (!SELECTED_PRODUCT) {
+    return;
   }
+  benefitsGrid.innerHTML = "";
+  productTiers.innerHTML = "";
+  renderPage({ unlocked: state.unlocked });
+  renderCheckoutNotice({
+    checkoutGranted: state.checkoutGranted,
+    unlocked: state.unlocked,
+    adminUnlocked: state.adminUnlocked,
+  });
 });
