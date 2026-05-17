@@ -228,6 +228,32 @@ p {
   box-shadow: 0 10px 22px rgba(15, 23, 42, 0.2);
 }
 
+.audiobook-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 10px;
+  padding: 0.75rem;
+  background: rgba(248, 250, 252, 0.9);
+}
+
+.audiobook-controls button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.audiobook-status {
+  margin: 0;
+  margin-left: 0.3rem;
+  font-size: 0.94rem;
+  font-weight: 600;
+  color: #334155;
+}
+
 label {
   font-size: 0.95rem;
   font-weight: 600;
@@ -275,6 +301,19 @@ textarea {
     bottom: 0.5rem;
     font-size: 0.68rem;
     padding: 0.2rem 0.48rem;
+  }
+
+  .audiobook-controls {
+    gap: 0.45rem;
+  }
+
+  .audiobook-controls button {
+    flex: 1 1 calc(50% - 0.45rem);
+  }
+
+  .audiobook-status {
+    width: 100%;
+    margin-left: 0;
   }
 }
 

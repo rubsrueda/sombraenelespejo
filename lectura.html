@@ -46,7 +46,7 @@
         <ul class="hidden items-center gap-2 md:flex">
           <li><a class="nav-link" href="index.html">Inicio</a></li>
           <li><a class="nav-link" href="autor.html">Autor</a></li>
-          <li><a class="nav-link" href="ventas.html">Libros</a></li>
+          <li><a class="nav-link" href="libros.html">Libros</a></li>
           <li><a class="nav-link" href="reseñas.html">Resenas</a></li>
           <li><a class="nav-link" href="login.html">Login</a></li>
         </ul>
@@ -54,7 +54,7 @@
       <div id="mobileMenu" class="mx-auto hidden w-full max-w-4xl px-4 pb-4 md:hidden">
         <a class="mobile-link" href="index.html">Inicio</a>
         <a class="mobile-link" href="autor.html">Autor</a>
-        <a class="mobile-link" href="ventas.html">Libros</a>
+        <a class="mobile-link" href="libros.html">Libros</a>
         <a class="mobile-link" href="reseñas.html">Resenas</a>
         <a class="mobile-link" href="login.html">Login</a>
       </div>
@@ -75,6 +75,12 @@
 
       <!-- Contenido dinámico (una sección a la vez) -->
       <section id="contentPanel" class="mt-6 content-card card-reveal">
+        <div id="audioBookControls" class="audiobook-controls mb-4" role="group" aria-label="Controles de audiolibro">
+          <button id="audioPlayBtn" type="button" class="btn-main btn-interact">Escuchar</button>
+          <button id="audioPauseBtn" type="button" class="btn-secondary btn-interact">Pausar</button>
+          <button id="audioStopBtn" type="button" class="btn-danger btn-interact">Detener</button>
+          <p id="audioBookStatus" class="audiobook-status" aria-live="polite">Narración lista.</p>
+        </div>
         <!-- El contenido de la sección activa aparece aquí -->
         <div id="sectionContent" class="reading-host"></div>
       </section>
@@ -86,7 +92,7 @@
           Para desbloquear el libro completo, realiza la compra y vuelve a esta sección.
         </p>
         <div id="catalogList" class="catalog-mini mb-4"></div>
-        <a data-i18n="common.actions.goToBuy" href="ventas.html" class="btn-main btn-interact inline-flex">Ir a Comprar</a>
+        <a id="lockedBuyLink" data-i18n="common.actions.goToBuy" href="ventas.html" class="btn-main btn-interact inline-flex">Ir a Comprar</a>
       </section>
     </main>
 

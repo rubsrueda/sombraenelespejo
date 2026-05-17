@@ -12,6 +12,12 @@ const sectionContent = document.getElementById("sectionContent");
 const statusNode = document.getElementById("readingAccessStatus");
 const lockedPanel = document.getElementById("lockedPanel");
 const catalogList = document.getElementById("catalogList");
+const lockedBuyLink = document.getElementById("lockedBuyLink");
+const audioBookControls = document.getElementById("audioBookControls");
+const audioPlayBtn = document.getElementById("audioPlayBtn");
+const audioPauseBtn = document.getElementById("audioPauseBtn");
+const audioStopBtn = document.getElementById("audioStopBtn");
+const audioBookStatus = document.getElementById("audioBookStatus");
 
 const READING_PROGRESS_KEY = "sombra_reading_progress_v1";
 
@@ -22,6 +28,33 @@ const readingState = {
   progressEntryKey: "anon",
   unlocked: false,
 };
+
+const MAX_TTS_CHUNK = 260;
+
+const audioState = {
+  supported:
+    typeof window !== "undefined"
+    && "speechSynthesis" in window
+    && "SpeechSynthesisUtterance" in window,
+  voice: null,
+  chunks: [],
+  chunkIndex: 0,
+  speaking: false,
+  paused: false,
+};
+
+const currentUrl = new URL(window.location.href);
+
+function getSelectedProduct() {
+  const requestedId = currentUrl.searchParams.get("product");
+  if (!requestedId) {
+    return PRODUCTO_ACTUAL;
+  }
+  const requested = CATALOGO.productos.find((item) => item.id === requestedId && item.activo);
+  return requested || PRODUCTO_ACTUAL;
+}
+
+const SELECTED_PRODUCT = getSelectedProduct();
 
 const SECTION_ALIASES = {
   prologue: ["prologo", "prólogo", "prologue", "preface", "avantpropos", "vorwort", "前言"],
@@ -438,12 +471,16 @@ function renderSectionContent(tab) {
   `;
 }
 
-async function loadBook() {
+async function loadBook(product) {
   const lang = getCurrentLang();
-  const localizedFile = `sombraenelespejo-${lang}.md`;
+  const sourceFile = product?.archivoContenido || "sombraenelespejo.md";
+  const extensionIndex = sourceFile.lastIndexOf(".");
+  const baseName = extensionIndex > 0 ? sourceFile.slice(0, extensionIndex) : sourceFile;
+  const extension = extensionIndex > 0 ? sourceFile.slice(extensionIndex) : ".md";
+  const localizedFile = `${baseName}-${lang}${extension}`;
   let response = await fetch(localizedFile, { cache: "no-store" });
   if (!response.ok) {
-    response = await fetch("sombraenelespejo.md", { cache: "no-store" });
+    response = await fetch(sourceFile, { cache: "no-store" });
   }
   if (!response.ok) {
     throw new Error(t("dynamic.lectura.loadError"));
@@ -570,28 +607,279 @@ function scrollToRatio(ratio = 0) {
   window.scrollTo({ top: targetTop, behavior: "auto" });
 }
 
+function updateAudioStatus(message) {
+  if (!audioBookStatus) {
+    return;
+  }
+  audioBookStatus.textContent = message;
+}
+
+function updateAudioButtons() {
+  if (!audioPlayBtn || !audioPauseBtn || !audioStopBtn) {
+    return;
+  }
+  if (!audioState.supported) {
+    audioPlayBtn.disabled = true;
+    audioPauseBtn.disabled = true;
+    audioStopBtn.disabled = true;
+    return;
+  }
+  const canPause = audioState.speaking && !audioState.paused;
+  const canStop = audioState.speaking || audioState.paused;
+  audioPauseBtn.disabled = !canPause;
+  audioStopBtn.disabled = !canStop;
+  audioPauseBtn.textContent = audioState.paused ? "Reanudar" : "Pausar";
+}
+
+function cleanNarrationText(text = "") {
+  return String(text)
+    .replace(/\s+/g, " ")
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .trim();
+}
+
+function splitNarrationText(text, maxLength = MAX_TTS_CHUNK) {
+  const normalized = cleanNarrationText(text);
+  if (!normalized) {
+    return [];
+  }
+
+  const pieces = normalized.match(/[^.!?;:,]+[.!?;:,]?|.+$/g) || [normalized];
+  const chunks = [];
+  let buffer = "";
+
+  pieces.forEach((piece) => {
+    const part = piece.trim();
+    if (!part) {
+      return;
+    }
+
+    if (part.length > maxLength) {
+      if (buffer) {
+        chunks.push(buffer.trim());
+        buffer = "";
+      }
+      const words = part.split(" ");
+      let wordBuffer = "";
+      words.forEach((word) => {
+        const candidate = wordBuffer ? `${wordBuffer} ${word}` : word;
+        if (candidate.length <= maxLength) {
+          wordBuffer = candidate;
+        } else {
+          if (wordBuffer) {
+            chunks.push(wordBuffer.trim());
+          }
+          wordBuffer = word;
+        }
+      });
+      if (wordBuffer) {
+        chunks.push(wordBuffer.trim());
+      }
+      return;
+    }
+
+    const candidate = buffer ? `${buffer} ${part}` : part;
+    if (candidate.length <= maxLength) {
+      buffer = candidate;
+    } else {
+      chunks.push(buffer.trim());
+      buffer = part;
+    }
+  });
+
+  if (buffer) {
+    chunks.push(buffer.trim());
+  }
+
+  return chunks.filter(Boolean);
+}
+
+function findBestSpanishVoice() {
+  if (!audioState.supported) {
+    return null;
+  }
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices.length) {
+    return null;
+  }
+
+  const spanishVoices = voices.filter((voice) => String(voice.lang || "").toLowerCase().startsWith("es"));
+  if (!spanishVoices.length) {
+    return voices[0] || null;
+  }
+
+  const maleHints = ["male", "hombre", "jorge", "pablo", "julio", "diego", "carlos", "enrique", "antonio"];
+  const hinted = spanishVoices.find((voice) => {
+    const name = String(voice.name || "").toLowerCase();
+    return maleHints.some((hint) => name.includes(hint));
+  });
+
+  return hinted || spanishVoices[0];
+}
+
+function syncVoice() {
+  audioState.voice = findBestSpanishVoice();
+}
+
+function stopNarration({ silent = false } = {}) {
+  if (!audioState.supported) {
+    return;
+  }
+  window.speechSynthesis.cancel();
+  audioState.speaking = false;
+  audioState.paused = false;
+  audioState.chunkIndex = 0;
+  if (!silent) {
+    updateAudioStatus("Narración detenida.");
+  }
+  updateAudioButtons();
+}
+
+function speakChunk(index) {
+  if (!audioState.supported) {
+    return;
+  }
+  const chunk = audioState.chunks[index];
+  if (!chunk) {
+    audioState.speaking = false;
+    audioState.paused = false;
+    audioState.chunkIndex = 0;
+    updateAudioStatus("Narración completada.");
+    updateAudioButtons();
+    return;
+  }
+
+  const utterance = new SpeechSynthesisUtterance(chunk);
+  utterance.lang = "es-ES";
+  utterance.rate = 1;
+  utterance.pitch = 1;
+  if (audioState.voice) {
+    utterance.voice = audioState.voice;
+  }
+
+  utterance.onend = () => {
+    if (audioState.paused) {
+      return;
+    }
+    audioState.chunkIndex += 1;
+    speakChunk(audioState.chunkIndex);
+  };
+
+  utterance.onerror = () => {
+    audioState.speaking = false;
+    audioState.paused = false;
+    updateAudioStatus("No fue posible continuar la narración en este navegador.");
+    updateAudioButtons();
+  };
+
+  window.speechSynthesis.speak(utterance);
+}
+
+function startNarration() {
+  if (!audioState.supported) {
+    updateAudioStatus("Tu navegador no soporta la función de audiolibro.");
+    updateAudioButtons();
+    return;
+  }
+
+  if (audioState.paused && window.speechSynthesis.paused) {
+    window.speechSynthesis.resume();
+    audioState.paused = false;
+    audioState.speaking = true;
+    updateAudioStatus("Narración reanudada.");
+    updateAudioButtons();
+    return;
+  }
+
+  const textToRead = cleanNarrationText(sectionContent?.innerText || "");
+  audioState.chunks = splitNarrationText(textToRead);
+  audioState.chunkIndex = 0;
+
+  if (!audioState.chunks.length) {
+    updateAudioStatus("No hay texto disponible para narrar en esta sección.");
+    updateAudioButtons();
+    return;
+  }
+
+  window.speechSynthesis.cancel();
+  audioState.speaking = true;
+  audioState.paused = false;
+  updateAudioStatus("Narrando sección actual...");
+  updateAudioButtons();
+  speakChunk(0);
+}
+
+function togglePauseNarration() {
+  if (!audioState.supported || !audioState.speaking) {
+    return;
+  }
+
+  if (audioState.paused) {
+    window.speechSynthesis.resume();
+    audioState.paused = false;
+    updateAudioStatus("Narración reanudada.");
+  } else {
+    window.speechSynthesis.pause();
+    audioState.paused = true;
+    updateAudioStatus("Narración en pausa.");
+  }
+  updateAudioButtons();
+}
+
+function setupAudioControls() {
+  if (!audioBookControls || !audioPlayBtn || !audioPauseBtn || !audioStopBtn) {
+    return;
+  }
+
+  syncVoice();
+  if (audioState.supported) {
+    window.speechSynthesis.onvoiceschanged = () => {
+      syncVoice();
+    };
+  }
+
+  audioPlayBtn.addEventListener("click", () => {
+    startNarration();
+  });
+
+  audioPauseBtn.addEventListener("click", () => {
+    togglePauseNarration();
+  });
+
+  audioStopBtn.addEventListener("click", () => {
+    stopNarration();
+  });
+
+  if (!audioState.supported) {
+    updateAudioStatus("Tu navegador no soporta la función de audiolibro.");
+  } else {
+    updateAudioStatus("Narración lista.");
+  }
+  updateAudioButtons();
+}
+
 async function init() {
   try {
-    if (!PRODUCTO_ACTUAL) {
-      console.error("PRODUCTO_ACTUAL no está disponible");
+    if (!SELECTED_PRODUCT) {
+      console.error("No hay producto activo disponible");
       return;
     }
 
     const checkoutGranted = applyCheckoutGrantFromUrl({
-      token: PRODUCTO_ACTUAL.accessGrantToken,
-      grantId: PRODUCTO_ACTUAL.accessGrantId,
+      token: SELECTED_PRODUCT.accessGrantToken,
+      grantId: SELECTED_PRODUCT.accessGrantId,
       accessParam: CATALOGO.accesoUrlParam,
       returnParam: CATALOGO.accesoRetornoUrlParam,
     });
     const user = await getCurrentUser().catch(() => null);
     const adminUnlocked = isAdminUser(user);
-    const unlocked = checkoutGranted || hasAccess(PRODUCTO_ACTUAL.accessGrantId) || adminUnlocked;
+    const unlocked = checkoutGranted || hasAccess(SELECTED_PRODUCT.accessGrantId) || adminUnlocked;
     const userKey = normalizeEmail(user?.email) || getSessionEmailFallback() || "anon";
-    readingState.progressEntryKey = `${PRODUCTO_ACTUAL.accessGrantId}::${userKey}`;
+    readingState.progressEntryKey = `${SELECTED_PRODUCT.accessGrantId}::${userKey}`;
     readingState.unlocked = unlocked;
 
     if (checkoutGranted) {
-      saveEntitlementForCurrentUser(PRODUCTO_ACTUAL.accessGrantId).catch(() => {
+      saveEntitlementForCurrentUser(SELECTED_PRODUCT.accessGrantId).catch(() => {
         // Mantiene acceso local aunque falle la escritura remota.
       });
     }
@@ -599,12 +887,15 @@ async function init() {
     renderStatus(unlocked, adminUnlocked);
 
     // Cargar datos del producto
-    const product = getProductI18n(getCurrentLang());
-    bookTitle.textContent = product.nombre;
-    bookDescription.textContent = product.publicDescription;
+    const localizedProduct = getProductI18n(getCurrentLang());
+    bookTitle.textContent = SELECTED_PRODUCT.nombre || localizedProduct.nombre;
+    bookDescription.textContent = SELECTED_PRODUCT.descripcionPublica || localizedProduct.publicDescription;
+    if (lockedBuyLink) {
+      lockedBuyLink.href = `ventas.html?product=${encodeURIComponent(SELECTED_PRODUCT.id)}`;
+    }
 
     // Cargar libro y extraer secciones
-    const sourceText = await loadBook();
+    const sourceText = await loadBook(SELECTED_PRODUCT);
     const sections = extractSections(sourceText);
     readingState.sectionRanges = sections?._meta?.ranges || null;
 
@@ -629,6 +920,10 @@ async function init() {
     function renderTabById(tabId) {
       const tab = availableTabs.find((item) => item.id === tabId) || availableTabs[0];
       readingState.activeTabId = tab.id;
+
+      stopNarration({ silent: true });
+      updateAudioStatus("Narración lista para esta sección.");
+      updateAudioButtons();
 
       const tabButtons = document.querySelectorAll(".tab-btn");
       tabButtons.forEach((btn) => {
@@ -686,10 +981,12 @@ async function init() {
       contentNav.classList.add("hidden");
       lockedPanel.classList.remove("hidden");
       renderMiniCatalog();
+      stopNarration({ silent: true });
     } else {
       contentPanel.classList.remove("hidden");
       contentNav.classList.remove("hidden");
       lockedPanel.classList.add("hidden");
+      setupAudioControls();
 
       // Restore scroll position after initial render.
       setTimeout(() => {
@@ -708,6 +1005,7 @@ async function init() {
 
       window.addEventListener("beforeunload", () => {
         saveReadingProgress();
+        stopNarration({ silent: true });
       });
     }
   } catch (error) {
