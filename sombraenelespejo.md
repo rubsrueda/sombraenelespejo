@@ -628,6 +628,8 @@ Le invitamos a ejercer su liderazgo ético identificando las dinámicas de contr
 
 <a id="capitulo-9-la-trampa-de-la-reaccion-abuso-reactivo-y-la-inversion-de-roles-darvo"></a>
 ### Capítulo 9: La Trampa de la Reacción: Abuso Reactivo y la Inversión de Roles (DARVO)
+
+#### Fase 1: Viñeta / Narración
 El caso de Pablo: La captura del último aliento (Martes, 23:30 horas)
 Pablo detiene el ascensor en su planta. Antes de introducir la llave, apoya la frente contra la madera fría de la puerta. Trata de vaciar sus pulmones del aire de la calle, el aire libre donde él es un adulto funcional, para llenarlos con el oxígeno de su salón, que siempre se siente más escaso, más denso, como si la casa misma respirara antes que él y no le dejara nada.
 Pablo es un hombre que lleva cuarenta años siendo adiestrado para no molestar. Su currículum, su éxito laboral, su complexión atlética; todo es irrelevante aquí. En su médula espinal, Pablo es simplemente un niño que aprendió que no tiene derecho a la ira, ni a la queja, ni al cansancio.
