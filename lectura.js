@@ -1,6 +1,6 @@
 import { CATALOGO, PRODUCTO_ACTUAL } from "./producto-config.js";
 import { applyCheckoutGrantFromUrl, hasAccess } from "./access-control.js";
-import { getCurrentUser, saveEntitlementForCurrentUser } from "./entitlements.js";
+import { getCurrentUser, resolveAccess, saveEntitlementForCurrentUser } from "./entitlements.js";
 import { ADMIN_EMAILS } from "./admin-config.js";
 import { getCurrentLang, getProductI18n, t } from "./i18n.js";
 
@@ -873,7 +873,9 @@ async function init() {
     });
     const user = await getCurrentUser().catch(() => null);
     const adminUnlocked = isAdminUser(user);
-    const unlocked = checkoutGranted || hasAccess(SELECTED_PRODUCT.accessGrantId) || adminUnlocked;
+    const localUnlocked = hasAccess(SELECTED_PRODUCT.accessGrantId);
+    const remoteUnlocked = await resolveAccess(SELECTED_PRODUCT.accessGrantId).catch(() => false);
+    const unlocked = checkoutGranted || localUnlocked || remoteUnlocked || adminUnlocked;
     const userKey = normalizeEmail(user?.email) || getSessionEmailFallback() || "anon";
     readingState.progressEntryKey = `${SELECTED_PRODUCT.accessGrantId}::${userKey}`;
     readingState.unlocked = unlocked;

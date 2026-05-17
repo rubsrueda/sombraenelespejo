@@ -2,6 +2,7 @@ import { hasAccess, grantAccess } from "./access-control.js";
 import { supabase } from "./supabase-client.js";
 import { getAttributionSnapshot } from "./affiliate.js";
 import { trackEvent } from "./analytics.js";
+import { GUEST_READER_EMAILS } from "./admin-config.js";
 
 export async function getCurrentUser() {
   const { data } = await supabase.auth.getUser();
@@ -119,12 +120,36 @@ export async function hasEntitlementInSupabase(grantId) {
   return Boolean(data);
 }
 
+function normalizeEmail(email) {
+  const value = String(email || "").trim().toLowerCase();
+  const [local = "", domain = ""] = value.split("@");
+  if (domain === "gmail.com" || domain === "googlemail.com") {
+    const cleanLocal = local.split("+")[0].replace(/\./g, "");
+    return `${cleanLocal}@gmail.com`;
+  }
+  return value;
+}
+
+function isGuestReaderEmail(email) {
+  if (!email) {
+    return false;
+  }
+  const normalized = normalizeEmail(email);
+  return GUEST_READER_EMAILS.map(normalizeEmail).includes(normalized);
+}
+
 export async function resolveAccess(grantId) {
   if (hasAccess(grantId)) {
     return true;
   }
 
   try {
+    const user = await getCurrentUser();
+    if (isGuestReaderEmail(user?.email)) {
+      grantAccess(grantId);
+      return true;
+    }
+
     const unlocked = await hasEntitlementInSupabase(grantId);
     if (unlocked) {
       grantAccess(grantId);
