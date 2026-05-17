@@ -231,17 +231,19 @@ p {
 .audiobook-controls {
   position: sticky;
   top: 80px;
-  z-index: 40;
+  z-index: 50;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 0.55rem;
+  margin-top: 0.8rem;
+  margin-bottom: 0.8rem;
   border: 1px solid rgba(15, 23, 42, 0.12);
   border-radius: 10px;
   padding: 0.75rem;
-  background: rgba(248, 250, 252, 0.95);
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
-  backdrop-filter: blur(4px);
+  background: rgba(248, 250, 252, 0.98);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.1);
+  backdrop-filter: blur(8px);
 }
 
 .audiobook-controls button:disabled {

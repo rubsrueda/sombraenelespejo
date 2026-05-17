@@ -73,14 +73,16 @@
         <!-- Los tabs se generan dinámicamente en lectura.js -->
       </nav>
 
+      <!-- Controles de audio flotantes (fuera del content-card para que sean realmente sticky) -->
+      <div id="audioBookControls" class="audiobook-controls" role="group" aria-label="Controles de audiolibro">
+        <button id="audioPlayBtn" type="button" class="btn-main btn-interact">Escuchar</button>
+        <button id="audioPauseBtn" type="button" class="btn-secondary btn-interact">Pausar</button>
+        <button id="audioStopBtn" type="button" class="btn-danger btn-interact">Detener</button>
+        <p id="audioBookStatus" class="audiobook-status" aria-live="polite">Narración lista.</p>
+      </div>
+
       <!-- Contenido dinámico (una sección a la vez) -->
-      <section id="contentPanel" class="mt-6 content-card card-reveal">
-        <div id="audioBookControls" class="audiobook-controls mb-4" role="group" aria-label="Controles de audiolibro">
-          <button id="audioPlayBtn" type="button" class="btn-main btn-interact">Escuchar</button>
-          <button id="audioPauseBtn" type="button" class="btn-secondary btn-interact">Pausar</button>
-          <button id="audioStopBtn" type="button" class="btn-danger btn-interact">Detener</button>
-          <p id="audioBookStatus" class="audiobook-status" aria-live="polite">Narración lista.</p>
-        </div>
+      <section id="contentPanel" class="content-card card-reveal">
         <!-- El contenido de la sección activa aparece aquí -->
         <div id="sectionContent" class="reading-host"></div>
       </section>
