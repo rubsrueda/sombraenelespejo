@@ -927,6 +927,31 @@ function setupAudioControls() {
     stopNarration();
   });
 
+  // Atajos de teclado para control de audio
+  document.addEventListener("keydown", (e) => {
+    // Solo si el usuario está en el capítulo actual y no en un input
+    if (!readingState.unlocked || !readingState.activeTabId) return;
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+
+    // Space o 'p': reproducir/pausar
+    if (e.code === "Space" || e.key.toLowerCase() === "p") {
+      e.preventDefault();
+      if (audioState.speaking && !audioState.paused) {
+        togglePauseNarration();
+      } else if (audioState.paused) {
+        togglePauseNarration();
+      } else {
+        startNarration();
+      }
+    }
+
+    // Escape o 's': detener
+    if (e.code === "Escape" || e.key.toLowerCase() === "s") {
+      e.preventDefault();
+      stopNarration();
+    }
+  });
+
   if (!audioState.supported) {
     updateAudioStatus("Tu navegador no soporta la función de audiolibro.");
   } else {
