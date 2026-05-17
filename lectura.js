@@ -947,6 +947,7 @@ async function init() {
 
     const url = new URL(window.location.href);
     const requestedLine = Number(url.searchParams.get("line"));
+    const requestedSection = url.searchParams.get("section") || url.searchParams.get("tab");
     const savedProgress = restoreReadingProgress();
 
     let targetTabId = availableTabs[0].id;
@@ -958,6 +959,9 @@ async function init() {
         targetTabId = lineTabId;
         targetRatio = ratioForLine(lineTabId, requestedLine);
       }
+    } else if (requestedSection && availableTabs.some((tab) => tab.id === requestedSection)) {
+      targetTabId = requestedSection;
+      targetRatio = 0;
     } else if (savedProgress?.tabId && availableTabs.some((tab) => tab.id === savedProgress.tabId)) {
       targetTabId = savedProgress.tabId;
       targetRatio = Number(savedProgress.ratio) || 0;
