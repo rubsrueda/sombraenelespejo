@@ -658,6 +658,32 @@ function scrollToRatio(ratio = 0) {
   window.scrollTo({ top: targetTop, behavior: "auto" });
 }
 
+function getShareableUrl() {
+  if (!readingState.activeTabId) {
+    return window.location.href;
+  }
+  
+  const baseUrl = new URL(window.location.origin + window.location.pathname);
+  const product = SELECTED_PRODUCT?.id;
+  
+  if (product) {
+    baseUrl.searchParams.set("product", product);
+  }
+  
+  // Verificar si es un capítulo individual
+  const currentTab = readingState.availableTabs?.find((t) => t.id === readingState.activeTabId);
+  if (currentTab && currentTab.id.startsWith("chapter-")) {
+    const chapterMatch = currentTab.id.match(/chapter-(\d+)/);
+    if (chapterMatch) {
+      baseUrl.searchParams.set("chapter", chapterMatch[1]);
+    }
+  } else if (readingState.activeTabId !== "prologue" && readingState.activeTabId !== "index") {
+    baseUrl.searchParams.set("section", readingState.activeTabId);
+  }
+  
+  return baseUrl.toString();
+}
+
 function updateAudioStatus(message) {
   if (!audioBookStatus) {
     return;
