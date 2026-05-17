@@ -269,6 +269,57 @@ function stageSlice(lines, bounds, stageName) {
   return compact(lines.slice(node.start + 1, node.end));
 }
 
+function extractChapters(chaptersText) {
+  const lines = chaptersText.replace(/\r/g, "").split("\n");
+  const chapters = [];
+  
+  // Regex para detectar líneas que inician un capítulo: "### Capítulo N:" o "### Chapter N:"
+  const chapterRegex = /^#+\s*(?:Capítulo|Capitulo|Chapter|Cap\.?|Kap\.?)\s+(\d+)[:\s]/i;
+  
+  let currentChapter = null;
+  let currentContent = [];
+  
+  lines.forEach((line, index) => {
+    const match = line.match(chapterRegex);
+    
+    if (match) {
+      // Guardamos el capítulo anterior si existe
+      if (currentChapter !== null) {
+        chapters.push({
+          number: currentChapter.number,
+          label: currentChapter.label,
+          id: `chapter-${currentChapter.number}`,
+          content: compact(currentContent),
+        });
+      }
+      
+      // Extraer número y título del capítulo
+      const chapterNum = parseInt(match[1], 10);
+      const fullLine = line.trim();
+      
+      currentChapter = {
+        number: chapterNum,
+        label: fullLine.replace(/^#+\s*/, "").replace(/:.*$/, "").trim() || `Capítulo ${chapterNum}`,
+      };
+      currentContent = [line];
+    } else if (currentChapter !== null) {
+      currentContent.push(line);
+    }
+  });
+  
+  // Guardar el último capítulo
+  if (currentChapter !== null) {
+    chapters.push({
+      number: currentChapter.number,
+      label: currentChapter.label,
+      id: `chapter-${currentChapter.number}`,
+      content: compact(currentContent),
+    });
+  }
+  
+  return chapters;
+}
+
 function extractSections(text) {
   const lines = text.replace(/\r/g, "").split("\n");
 
@@ -901,6 +952,9 @@ async function init() {
     const sections = extractSections(sourceText);
     readingState.sectionRanges = sections?._meta?.ranges || null;
 
+    // Extraer capítulos individuales si existen
+    const individualChapters = unlocked ? extractChapters(sections.chapters) : [];
+
     // Definir navegación disponible
     const availableTabs = [
       { id: "prologue", label: "Prólogo", content: sections.prologue },
@@ -909,7 +963,13 @@ async function init() {
 
     // Capítulos solo si tiene acceso
     if (unlocked) {
-      availableTabs.push({ id: "chapters", label: "Capítulos", content: sections.chapters });
+      if (individualChapters.length > 0) {
+        // Si hay capítulos individuales, agregarlos como tabs
+        availableTabs.push(...individualChapters);
+      } else {
+        // Si no hay capítulos individuales, agregar la sección completa
+        availableTabs.push({ id: "chapters", label: "Capítulos", content: sections.chapters });
+      }
     }
 
     // Agregar el resto
@@ -948,6 +1008,7 @@ async function init() {
     const url = new URL(window.location.href);
     const requestedLine = Number(url.searchParams.get("line"));
     const requestedSection = url.searchParams.get("section") || url.searchParams.get("tab");
+    const requestedChapter = url.searchParams.get("chapter") || url.searchParams.get("capitulo");
     const savedProgress = restoreReadingProgress();
 
     let targetTabId = availableTabs[0].id;
@@ -958,6 +1019,13 @@ async function init() {
       if (lineTabId) {
         targetTabId = lineTabId;
         targetRatio = ratioForLine(lineTabId, requestedLine);
+      }
+    } else if (requestedChapter && individualChapters.length > 0) {
+      const chapterNum = parseInt(requestedChapter, 10);
+      const foundChapter = individualChapters.find((ch) => ch.number === chapterNum);
+      if (foundChapter) {
+        targetTabId = foundChapter.id;
+        targetRatio = 0;
       }
     } else if (requestedSection && availableTabs.some((tab) => tab.id === requestedSection)) {
       targetTabId = requestedSection;
