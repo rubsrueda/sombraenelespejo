@@ -835,3 +835,64 @@ textarea {
     padding-bottom: 1rem;
   }
 }
+
+/* Controles de audio flotantes globales */
+.audiobook-controls-floating {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  border: 2px solid rgba(15, 23, 42, 0.2);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  background: rgba(248, 250, 252, 0.99);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
+  backdrop-filter: blur(12px);
+  max-width: 90vw;
+  animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.audiobook-controls-floating button {
+  min-width: auto;
+  white-space: nowrap;
+}
+
+.audiobook-controls-floating p {
+  margin-left: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #334155;
+  min-width: 150px;
+}
+
+@media (max-width: 768px) {
+  .audiobook-controls-floating {
+    bottom: 12px;
+    right: 12px;
+    left: 12px;
+    flex-direction: column;
+    max-width: calc(100vw - 24px);
+  }
+
+  .audiobook-controls-floating p {
+    margin-left: 0;
+    margin-top: 0.4rem;
+    text-align: center;
+    min-width: auto;
+  }
+}
