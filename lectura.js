@@ -423,6 +423,37 @@ function renderSectionContent(tab) {
   let phaseAnalysisShown = false;
   let phaseMirrorShown = false;
 
+  const pushStructuredLines = (text = "") => {
+    const lines = String(text)
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    lines.forEach((line) => {
+      if (/^#{1,6}\s+/.test(line)) {
+        articleParts.push(`<h4 class="reading-subtitle">${formatInline(cleanHeading(line))}</h4>`);
+        return;
+      }
+
+      if (/^>\s?/.test(line)) {
+        articleParts.push(`<p class="reading-paragraph">${formatInline(line.replace(/^>\s?/, ""))}</p>`);
+        return;
+      }
+
+      if (/^[-*]\s+/.test(line)) {
+        articleParts.push(`<p class="reading-paragraph">• ${formatInline(line.replace(/^[-*]\s+/, ""))}</p>`);
+        return;
+      }
+
+      if (/^\d+[\.)]\s+/.test(line)) {
+        articleParts.push(`<p class="reading-paragraph">${formatInline(line)}</p>`);
+        return;
+      }
+
+      articleParts.push(`<p class="reading-paragraph">${formatInline(line)}</p>`);
+    });
+  };
+
   blocks.forEach((block, index) => {
     const blockLines = block.split("\n");
     const firstLine = blockLines[0]?.trim() || "";
@@ -434,20 +465,23 @@ function renderSectionContent(tab) {
     if (index === 0) {
       articleParts.push(`<h2 class="reading-stage-main-title">${formatInline(normalized || tab.label)}</h2>`);
       if (remainingLines) {
-        articleParts.push(`<p class="reading-paragraph">${formatInline(remainingLines.replace(/\n+/g, " "))}</p>`);
+        pushStructuredLines(remainingLines);
       }
       return;
     }
 
     if (/^#{1,6}\s+/.test(firstLine)) {
       articleParts.push(`<h3 class="reading-subtitle">${formatInline(cleanHeading(firstLine))}</h3>`);
+      if (remainingLines) {
+        pushStructuredLines(remainingLines);
+      }
       return;
     }
 
     if (/^(parte|part)\b/i.test(normalized)) {
       articleParts.push(`<h3 class="reading-part-title">${formatInline(normalized)}</h3>`);
       if (remainingLines) {
-        articleParts.push(`<p class="reading-paragraph">${formatInline(remainingLines.replace(/\n+/g, " "))}</p>`);
+        pushStructuredLines(remainingLines);
       }
       return;
     }
@@ -464,7 +498,7 @@ function renderSectionContent(tab) {
         .join("\n")
         .trim();
       if (remainder) {
-        articleParts.push(`<p class="reading-paragraph">${formatInline(remainder.replace(/\n+/g, " "))}</p>`);
+        pushStructuredLines(remainder);
       }
       return;
     }
@@ -476,7 +510,7 @@ function renderSectionContent(tab) {
       }
       articleParts.push(`<h4 class="reading-point-title">${formatInline(normalized)}</h4>`);
       if (remainingLines) {
-        articleParts.push(`<p class="reading-paragraph">${formatInline(remainingLines.replace(/\n+/g, " "))}</p>`);
+        pushStructuredLines(remainingLines);
       }
       return;
     }
@@ -488,7 +522,7 @@ function renderSectionContent(tab) {
       }
       articleParts.push(`<h4 class="reading-mirror-title">${formatInline(firstLine)}</h4>`);
       if (remainingLines) {
-        articleParts.push(`<p class="reading-paragraph">${formatInline(remainingLines.replace(/\n+/g, " "))}</p>`);
+        pushStructuredLines(remainingLines);
       }
       return;
     }
