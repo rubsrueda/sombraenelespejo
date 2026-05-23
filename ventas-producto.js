@@ -116,6 +116,8 @@ function isAdminUser(user) {
 
 function createTierCard(item, { unlocked = false } = {}) {
   const localized = getProductI18n(getCurrentLang());
+  const productName = item.nombre || localized.name;
+  const productDescription = item.descripcionPublica || item.descripcion || localized.description;
   const article = document.createElement("article");
   article.className = "sales-card card-reveal tier-card";
 
@@ -130,8 +132,8 @@ function createTierCard(item, { unlocked = false } = {}) {
 
   article.innerHTML = `
     <p class="tier-price">${formatPriceList(item)}</p>
-    <h3 class="mt-0 mb-2 text-3xl">${localized.name}</h3>
-    <p class="mb-4">${localized.description}</p>
+    <h3 class="mt-0 mb-2 text-3xl">${productName}</h3>
+    <p class="mb-4">${productDescription}</p>
     <p class="mb-4 text-sm text-slate-500">${t("dynamic.buy.grantedAccess")}: ${item.accessGrantId}</p>
     ${cta}
   `;
@@ -141,8 +143,10 @@ function createTierCard(item, { unlocked = false } = {}) {
 
 function renderPage({ unlocked = false } = {}) {
   const localized = getProductI18n(getCurrentLang());
+  const productName = SELECTED_PRODUCT.nombre || localized.name;
+  const productTransparency = SELECTED_PRODUCT.transparencia || localized.transparency;
 
-  productTitle.textContent = localized.name;
+  productTitle.textContent = productName;
   productSubtitle.textContent = t("dynamic.buy.productSubtitle", { platform: SELECTED_PRODUCT.plataforma });
 
   // Enfoca la experiencia en un único producto de compra.
@@ -151,7 +155,7 @@ function renderPage({ unlocked = false } = {}) {
 
   productTiers.appendChild(createTierCard(SELECTED_PRODUCT, { unlocked }));
 
-  salesTransparencyText.textContent = localized.transparency;
+  salesTransparencyText.textContent = productTransparency;
 }
 
 function renderCheckoutNotice({ checkoutGranted = false, unlocked = false, adminUnlocked = false } = {}) {

@@ -48,6 +48,52 @@ export const CATALOGO = {
       transparencia:
         "Los fondos se destinan a edición, producción, distribución y mantenimiento del proyecto editorial. Los pagos se procesan mediante pasarela segura cifrada.",
     },
+    {
+      id: "libro-el-engano-de-claudia",
+      tipo: "libro",
+      activo: true,
+      destacado: false,
+      nombre: "El Engaño de Claudia",
+      moneda: "EUR",
+      plataforma: "Stripe",
+      precio: 9.89,
+      precios: [
+        { valor: 9.89, moneda: "EUR" },
+        { valor: 11.45, moneda: "USD" },
+        { valor: 199, moneda: "MXN" },
+      ],
+      descripcion:
+        "Compra única para habilitar acceso al libro completo en la plataforma.",
+      descripcionPublica:
+        "El Engaño de Claudia analiza la Leyenda Negra, la manipulación histórica y la reconstrucción de la memoria hispana desde un enfoque documental.",
+      archivoContenido: "Elengañodeclaudia.md",
+      lecturaPath: "lectura.html",
+      accessGrantId: "elengano-de-claudia-libro-completo",
+      accessGrantToken: "elengano-de-claudia-completo",
+      enlaceCheckout: "",
+      enlaceCheckoutActivo: false,
+      beneficios: [
+        {
+          titulo: "Libro Completo",
+          badge: "Acceso total",
+          descripcion:
+            "Desbloquea la lectura completa dentro del sitio.",
+        },
+        {
+          titulo: "Formato Digital",
+          badge: "Lectura inmediata",
+          descripcion: "Consulta online tras activar la compra.",
+        },
+        {
+          titulo: "Investigación Histórica",
+          badge: "Análisis documental",
+          descripcion:
+            "Contenido enfocado en contexto histórico y geopolítico.",
+        },
+      ],
+      transparencia:
+        "Los fondos se destinan a edición, producción, distribución y mantenimiento del proyecto editorial. Los pagos se procesan mediante pasarela segura cifrada.",
+    },
   ],
   // Este espacio permite añadir nuevos elementos sin cambiar la lógica principal.
   proyectosFuturos: [],
