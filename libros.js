@@ -69,6 +69,7 @@ function formatPriceList(item) {
   if (Array.isArray(item.precios) && item.precios.length > 0) {
     return item.precios.map((entry) => `${entry.valor} ${entry.moneda}`).join(" / ");
   }
+  if (!item.precio) return "Próximamente disponible";
   return `${item.precio} ${item.moneda}`;
 }
 
@@ -81,14 +82,24 @@ function createCard(item, ctx) {
   const actions = unlocked
     ? `<a href="${readHref}" class="btn-main btn-interact inline-flex">${progressLine ? `Continuar (línea ${progressLine})` : "Leer ahora"}</a>
        <a href="${buyHref}" class="btn-secondary btn-interact inline-flex">Ver compra</a>`
-    : `<a href="${buyHref}" class="btn-main btn-interact inline-flex">Comprar libro</a>`;
+    : item.enlaceCheckoutActivo
+      ? `<a href="${buyHref}" class="btn-main btn-interact inline-flex">Comprar libro</a>`
+      : `<span class="btn-secondary inline-flex opacity-50 cursor-default">Próximamente</span>`;
+
+  const productParam = `?product=${encodeURIComponent(item.id)}`;
+  const previews = `
+    <a href="prologo.html${productParam}" class="btn-secondary btn-interact inline-flex text-sm">Prólogo</a>
+    <a href="epilogo.html${productParam}" class="btn-secondary btn-interact inline-flex text-sm">Epílogo</a>
+    <a href="resumen.html${productParam}" class="btn-secondary btn-interact inline-flex text-sm">Sinopsis</a>
+  `;
 
   return `
     <article class="sales-card card-reveal">
       <h2 class="section-title">${item.nombre}</h2>
       <p class="mb-3">${item.descripcionPublica || item.descripcion || ""}</p>
       <p class="mb-4 text-sm text-slate-600">${formatPriceList(item)}</p>
-      <div class="flex flex-wrap gap-2">${actions}</div>
+      <div class="flex flex-wrap gap-2 mb-3">${actions}</div>
+      <div class="flex flex-wrap gap-2">${previews}</div>
     </article>
   `;
 }
