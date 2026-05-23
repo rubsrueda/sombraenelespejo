@@ -852,8 +852,15 @@ textarea {
   background: rgba(248, 250, 252, 0.99);
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
   backdrop-filter: blur(12px);
-  max-width: 90vw;
+  max-width: min(90vw, 720px);
   animation: slideInUp 0.3s ease-out;
+}
+
+.audiobook-controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  width: 100%;
 }
 
 @keyframes slideInUp {
@@ -873,11 +880,25 @@ textarea {
 }
 
 .audiobook-controls-floating p {
-  margin-left: 0.5rem;
+  margin: 0;
   font-size: 0.9rem;
   font-weight: 500;
   color: #334155;
-  min-width: 150px;
+}
+
+.audiobook-meta {
+  width: 100%;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.audiobook-status-line {
+  font-size: 0.84rem;
+  color: #0f172a;
+}
+
+.audiobook-status-line span {
+  font-weight: 700;
 }
 
 @media (max-width: 768px) {
@@ -894,5 +915,9 @@ textarea {
     margin-top: 0.4rem;
     text-align: center;
     min-width: auto;
+  }
+
+  .audiobook-controls-row button {
+    width: 100%;
   }
 }

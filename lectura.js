@@ -18,6 +18,14 @@ const audioPlayBtn = document.getElementById("audioPlayBtn");
 const audioPauseBtn = document.getElementById("audioPauseBtn");
 const audioStopBtn = document.getElementById("audioStopBtn");
 const audioBookStatus = document.getElementById("audioBookStatus");
+const audioBookHint = document.getElementById("audioBookHint");
+const audioStateValue = document.getElementById("audioStateValue");
+const audioChunkValue = document.getElementById("audioChunkValue");
+const audioWordsValue = document.getElementById("audioWordsValue");
+const audioTimeValue = document.getElementById("audioTimeValue");
+const savePositionBtn = document.getElementById("savePositionBtn");
+const continuePositionBtn = document.getElementById("continuePositionBtn");
+const clearPositionBtn = document.getElementById("clearPositionBtn");
 
 const READING_PROGRESS_KEY = "sombra_reading_progress_v1";
 
@@ -27,6 +35,7 @@ const readingState = {
   sectionRanges: null,
   progressEntryKey: "anon",
   unlocked: false,
+  renderTabById: null,
 };
 
 const MAX_TTS_CHUNK = 260;
@@ -41,6 +50,7 @@ const audioState = {
   chunkIndex: 0,
   speaking: false,
   paused: false,
+  sourceText: "",
 };
 
 const currentUrl = new URL(window.location.href);
@@ -580,7 +590,7 @@ function renderStatus(unlocked, isAdmin) {
       : t("dynamic.lectura.active");
     return;
   }
-  statusNode.innerHTML = t("dynamic.lectura.pending");
+  statusNode.innerHTML = "Modo vista previa gratuito activo. Para desbloquear capítulos completos, compra este libro.";
 }
 
 function renderMiniCatalog() {
@@ -643,7 +653,7 @@ function estimateLineForActiveTab() {
 }
 
 function saveReadingProgress() {
-  if (!readingState.unlocked || !readingState.progressEntryKey || !readingState.activeTabId) {
+  if (!readingState.progressEntryKey || !readingState.activeTabId) {
     return;
   }
 
@@ -663,6 +673,15 @@ function restoreReadingProgress() {
   }
   const state = readProgressState();
   return state[readingState.progressEntryKey] || null;
+}
+
+function clearReadingProgress() {
+  if (!readingState.progressEntryKey) {
+    return;
+  }
+  const state = readProgressState();
+  delete state[readingState.progressEntryKey];
+  writeProgressState(state);
 }
 
 function tabIdForLine(line) {
@@ -725,6 +744,20 @@ function updateAudioStatus(message) {
   audioBookStatus.textContent = message;
 }
 
+function updateAudioHint(message) {
+  if (!audioBookHint) {
+    return;
+  }
+  audioBookHint.textContent = message;
+}
+
+function updateAudioMeta({ stateLabel = "En espera", chunkIndex = 0, totalChunks = 0, words = 0, minutes = 0 } = {}) {
+  if (audioStateValue) audioStateValue.textContent = stateLabel;
+  if (audioChunkValue) audioChunkValue.textContent = `${chunkIndex} / ${totalChunks}`;
+  if (audioWordsValue) audioWordsValue.textContent = String(words);
+  if (audioTimeValue) audioTimeValue.textContent = `${minutes} min`;
+}
+
 function updateAudioButtons() {
   if (!audioPlayBtn || !audioPauseBtn || !audioStopBtn) {
     return;
@@ -735,11 +768,11 @@ function updateAudioButtons() {
     audioStopBtn.disabled = true;
     return;
   }
-  const canPause = audioState.speaking && !audioState.paused;
+  const canPause = audioState.speaking || audioState.paused;
   const canStop = audioState.speaking || audioState.paused;
   audioPauseBtn.disabled = !canPause;
   audioStopBtn.disabled = !canStop;
-  audioPauseBtn.textContent = audioState.paused ? "Reanudar" : "Pausar";
+  audioPauseBtn.textContent = audioState.paused ? "⏯️ Reanudar" : "⏸️ Pausar";
 }
 
 function cleanNarrationText(text = "") {
@@ -747,6 +780,60 @@ function cleanNarrationText(text = "") {
     .replace(/\s+/g, " ")
     .replace(/[\u200B-\u200D\uFEFF]/g, "")
     .trim();
+}
+
+function isNodeInsideSection(node) {
+  if (!sectionContent || !node) {
+    return false;
+  }
+  if (node === sectionContent) {
+    return true;
+  }
+  return sectionContent.contains(node.nodeType === Node.TEXT_NODE ? node.parentNode : node);
+}
+
+function getTextFromCursorToEnd(range) {
+  if (!sectionContent || !range) {
+    return "";
+  }
+  const cursorRange = range.cloneRange();
+  cursorRange.setEnd(sectionContent, sectionContent.childNodes.length);
+  return cleanNarrationText(cursorRange.toString());
+}
+
+function getNarrationSourceText() {
+  const fullText = cleanNarrationText(sectionContent?.innerText || "");
+  const selection = window.getSelection?.();
+  if (!selection || !selection.rangeCount) {
+    return fullText;
+  }
+
+  const range = selection.getRangeAt(0);
+  if (!isNodeInsideSection(range.commonAncestorContainer)) {
+    return fullText;
+  }
+
+  const selectedText = cleanNarrationText(selection.toString());
+  if (selectedText) {
+    return selectedText;
+  }
+
+  if (!range.collapsed) {
+    return fullText;
+  }
+
+  const fromCursor = getTextFromCursorToEnd(range);
+  return fromCursor || fullText;
+}
+
+function estimateNarrationMeta(chunks = [], sourceText = "") {
+  const words = sourceText ? sourceText.split(/\s+/).filter(Boolean).length : 0;
+  const minutes = words ? Math.max(1, Math.round(words / 150)) : 0;
+  return {
+    words,
+    minutes,
+    totalChunks: chunks.length,
+  };
 }
 
 function splitNarrationText(text, maxLength = MAX_TTS_CHUNK) {
@@ -840,8 +927,12 @@ function stopNarration({ silent = false } = {}) {
   audioState.speaking = false;
   audioState.paused = false;
   audioState.chunkIndex = 0;
+  audioState.chunks = [];
+  audioState.sourceText = "";
+  updateAudioMeta({ stateLabel: "En espera", chunkIndex: 0, totalChunks: 0, words: 0, minutes: 0 });
   if (!silent) {
-    updateAudioStatus("Narración detenida.");
+    updateAudioStatus("Sin lectura activa.");
+    updateAudioHint("Listo.");
   }
   updateAudioButtons();
 }
@@ -852,10 +943,19 @@ function speakChunk(index) {
   }
   const chunk = audioState.chunks[index];
   if (!chunk) {
+    const meta = estimateNarrationMeta(audioState.chunks, audioState.sourceText);
     audioState.speaking = false;
     audioState.paused = false;
     audioState.chunkIndex = 0;
-    updateAudioStatus("Narración completada.");
+    updateAudioMeta({
+      stateLabel: "En espera",
+      chunkIndex: meta.totalChunks,
+      totalChunks: meta.totalChunks,
+      words: meta.words,
+      minutes: meta.minutes,
+    });
+    updateAudioStatus("Sin lectura activa.");
+    updateAudioHint("Lectura completada.");
     updateAudioButtons();
     return;
   }
@@ -873,13 +973,23 @@ function speakChunk(index) {
       return;
     }
     audioState.chunkIndex += 1;
+    const meta = estimateNarrationMeta(audioState.chunks, audioState.sourceText);
+    updateAudioMeta({
+      stateLabel: "Escuchando",
+      chunkIndex: Math.min(meta.totalChunks, audioState.chunkIndex + 1),
+      totalChunks: meta.totalChunks,
+      words: meta.words,
+      minutes: meta.minutes,
+    });
     speakChunk(audioState.chunkIndex);
   };
 
   utterance.onerror = () => {
     audioState.speaking = false;
     audioState.paused = false;
-    updateAudioStatus("No fue posible continuar la narración en este navegador.");
+    updateAudioMeta({ stateLabel: "En espera", chunkIndex: 0, totalChunks: 0, words: 0, minutes: 0 });
+    updateAudioStatus("Sin lectura activa.");
+    updateAudioHint("No fue posible continuar la lectura en este navegador.");
     updateAudioButtons();
   };
 
@@ -897,25 +1007,44 @@ function startNarration() {
     window.speechSynthesis.resume();
     audioState.paused = false;
     audioState.speaking = true;
-    updateAudioStatus("Narración reanudada.");
+    updateAudioMeta({
+      stateLabel: "Escuchando",
+      chunkIndex: audioState.chunkIndex + 1,
+      totalChunks: audioState.chunks.length,
+      ...estimateNarrationMeta(audioState.chunks, audioState.sourceText),
+    });
+    updateAudioStatus("Lectura reanudada.");
+    updateAudioHint("Listo.");
     updateAudioButtons();
     return;
   }
 
-  const textToRead = cleanNarrationText(sectionContent?.innerText || "");
+  const textToRead = getNarrationSourceText();
   audioState.chunks = splitNarrationText(textToRead);
   audioState.chunkIndex = 0;
+  audioState.sourceText = textToRead;
 
   if (!audioState.chunks.length) {
-    updateAudioStatus("No hay texto disponible para narrar en esta sección.");
+    updateAudioMeta({ stateLabel: "En espera", chunkIndex: 0, totalChunks: 0, words: 0, minutes: 0 });
+    updateAudioStatus("Sin lectura activa.");
+    updateAudioHint("No hay texto disponible para leer.");
     updateAudioButtons();
     return;
   }
 
+  const meta = estimateNarrationMeta(audioState.chunks, textToRead);
   window.speechSynthesis.cancel();
   audioState.speaking = true;
   audioState.paused = false;
-  updateAudioStatus("Narrando sección actual...");
+  updateAudioMeta({
+    stateLabel: "Escuchando",
+    chunkIndex: 1,
+    totalChunks: meta.totalChunks,
+    words: meta.words,
+    minutes: meta.minutes,
+  });
+  updateAudioStatus("Lectura en curso.");
+  updateAudioHint("Si seleccionas texto, se leerá solo esa selección.");
   updateAudioButtons();
   speakChunk(0);
 }
@@ -928,11 +1057,23 @@ function togglePauseNarration() {
   if (audioState.paused) {
     window.speechSynthesis.resume();
     audioState.paused = false;
-    updateAudioStatus("Narración reanudada.");
+    updateAudioStatus("Lectura reanudada.");
+    updateAudioMeta({
+      stateLabel: "Escuchando",
+      chunkIndex: audioState.chunkIndex + 1,
+      totalChunks: audioState.chunks.length,
+      ...estimateNarrationMeta(audioState.chunks, audioState.sourceText),
+    });
   } else {
     window.speechSynthesis.pause();
     audioState.paused = true;
-    updateAudioStatus("Narración en pausa.");
+    updateAudioStatus("Lectura en pausa.");
+    updateAudioMeta({
+      stateLabel: "Pausado",
+      chunkIndex: audioState.chunkIndex + 1,
+      totalChunks: audioState.chunks.length,
+      ...estimateNarrationMeta(audioState.chunks, audioState.sourceText),
+    });
   }
   updateAudioButtons();
 }
@@ -964,7 +1105,7 @@ function setupAudioControls() {
   // Atajos de teclado para control de audio
   document.addEventListener("keydown", (e) => {
     // Solo si el usuario está en el capítulo actual y no en un input
-    if (!readingState.unlocked || !readingState.activeTabId) return;
+    if (!readingState.activeTabId) return;
     if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
 
     // Space o 'p': reproducir/pausar
@@ -986,11 +1127,44 @@ function setupAudioControls() {
     }
   });
 
-  if (!audioState.supported) {
-    updateAudioStatus("Tu navegador no soporta la función de audiolibro.");
-  } else {
-    updateAudioStatus("Narración lista.");
+  if (savePositionBtn) {
+    savePositionBtn.addEventListener("click", () => {
+      saveReadingProgress();
+      updateAudioHint("Posición guardada.");
+    });
   }
+
+  if (continuePositionBtn) {
+    continuePositionBtn.addEventListener("click", () => {
+      const saved = restoreReadingProgress();
+      if (!saved) {
+        updateAudioHint("No hay posición guardada.");
+        return;
+      }
+      const savedTab = readingState.availableTabs.find((tab) => tab.id === saved.tabId);
+      if (savedTab && typeof readingState.renderTabById === "function") {
+        readingState.renderTabById(savedTab.id);
+      }
+      scrollToRatio(Number(saved.ratio) || 0);
+      updateAudioHint("Lectura retomada desde guardado.");
+    });
+  }
+
+  if (clearPositionBtn) {
+    clearPositionBtn.addEventListener("click", () => {
+      clearReadingProgress();
+      updateAudioHint("Posición guardada eliminada.");
+    });
+  }
+
+  if (!audioState.supported) {
+    updateAudioStatus("Sin lectura activa.");
+    updateAudioHint("Tu navegador no soporta la función de audiolibro.");
+  } else {
+    updateAudioStatus("Sin lectura activa.");
+    updateAudioHint("Listo.");
+  }
+  updateAudioMeta({ stateLabel: "En espera", chunkIndex: 0, totalChunks: 0, words: 0, minutes: 0 });
   updateAudioButtons();
 }
 
@@ -1069,7 +1243,8 @@ async function init() {
       readingState.activeTabId = tab.id;
 
       stopNarration({ silent: true });
-      updateAudioStatus("Narración lista para esta sección.");
+      updateAudioStatus("Sin lectura activa.");
+      updateAudioHint("Listo.");
       updateAudioButtons();
 
       const tabButtons = document.querySelectorAll(".tab-btn");
@@ -1080,6 +1255,7 @@ async function init() {
       sectionContent.innerHTML = renderSectionContent(tab);
       return tab;
     }
+    readingState.renderTabById = renderTabById;
 
     // Renderizar tabs
     contentNav.innerHTML = availableTabs
@@ -1136,11 +1312,11 @@ async function init() {
 
     // Mostrar/ocultar paneles según acceso
     if (!unlocked) {
-      contentPanel.classList.add("hidden");
-      contentNav.classList.add("hidden");
+      contentPanel.classList.remove("hidden");
+      contentNav.classList.remove("hidden");
       lockedPanel.classList.remove("hidden");
       renderMiniCatalog();
-      stopNarration({ silent: true });
+      setupAudioControls();
     } else {
       contentPanel.classList.remove("hidden");
       contentNav.classList.remove("hidden");

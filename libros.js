@@ -77,20 +77,26 @@ function createCard(item, ctx) {
   const lecturaPath = item.lecturaPath || "lectura.html";
   const readHref = `${lecturaPath}?product=${encodeURIComponent(item.id)}${progressLine ? `&line=${progressLine}` : ""}`;
   const buyHref = `ventas.html?product=${encodeURIComponent(item.id)}`;
+  const previewHref = `${lecturaPath}?product=${encodeURIComponent(item.id)}&preview=1`;
 
   const actions = unlocked
     ? `<a href="${readHref}" class="btn-main btn-interact inline-flex">${progressLine ? `Continuar (línea ${progressLine})` : "Leer ahora"}</a>
+       <a href="${previewHref}" class="btn-secondary btn-interact inline-flex">Vista previa</a>
        <a href="${buyHref}" class="btn-secondary btn-interact inline-flex">Ver compra</a>`
-    : `<a href="${buyHref}" class="btn-main btn-interact inline-flex">Comprar libro</a>`;
+    : `<a href="${previewHref}" class="btn-main btn-interact inline-flex">Leer vista previa</a>
+       <a href="${buyHref}" class="btn-secondary btn-interact inline-flex">Comprar libro</a>`;
 
-  return `
+  return {
+    unlocked,
+    html: `
     <article class="sales-card card-reveal">
       <h2 class="section-title">${item.nombre}</h2>
       <p class="mb-3">${item.descripcionPublica || item.descripcion || ""}</p>
       <p class="mb-4 text-sm text-slate-600">${formatPriceList(item)}</p>
       <div class="flex flex-wrap gap-2">${actions}</div>
     </article>
-  `;
+  `,
+  };
 }
 
 async function initLibrary() {
@@ -111,7 +117,7 @@ async function initLibrary() {
     return createCard(item, { unlocked, progressLine });
   }));
 
-  libraryGrid.innerHTML = cards.join("\n");
+  libraryGrid.innerHTML = cards.map((card) => card.html).join("\n");
 
   if (!libraryStatus) return;
   if (adminUnlocked) {
@@ -119,10 +125,10 @@ async function initLibrary() {
     return;
   }
 
-  const unlockedCount = cards.filter((html) => html.includes("Leer ahora") || html.includes("Continuar")).length;
+  const unlockedCount = cards.filter((card) => card.unlocked).length;
   libraryStatus.textContent = unlockedCount
     ? `Tienes ${unlockedCount} libro(s) con acceso activo.`
-    : "No hay libros activos en tu biblioteca todavía. Puedes comprarlos desde esta página.";
+    : "No hay libros con acceso completo activo. Puedes leer una vista previa gratis o comprarlos desde esta página.";
 }
 
 initLibrary();
