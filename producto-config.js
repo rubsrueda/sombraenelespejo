@@ -48,6 +48,48 @@ export const CATALOGO = {
       transparencia:
         "Los fondos se destinan a edición, producción, distribución y mantenimiento del proyecto editorial. Los pagos se procesan mediante pasarela segura cifrada.",
     },
+    {
+      id: "libro-engano-de-claudia",
+      tipo: "libro",
+      activo: true,
+      destacado: false,
+      nombre: "El Engaño de Claudia",
+      moneda: "EUR",
+      plataforma: "Stripe",
+      precio: 0,
+      precios: [],
+      descripcion:
+        "Próximamente disponible para compra.",
+      descripcionPublica:
+        "La Leyenda Negra, la traición anglomasónica y el despertar del México que olvidó que nació vencedor. Un análisis histórico y geopolítico sobre la ingeniería del auto-odio y la identidad hispana.",
+      archivoContenido: "Elengañodeclaudia.md",
+      lecturaPath: "lectura.html",
+      accessGrantId: "engano-de-claudia-libro-completo",
+      accessGrantToken: "engano-de-claudia-completo",
+      enlaceCheckout: "",
+      enlaceCheckoutActivo: false,
+      beneficios: [
+        {
+          titulo: "Análisis Histórico",
+          badge: "Rigor documental",
+          descripcion:
+            "Revisión crítica de los hechos que moldearon la identidad mexicana desde 1821.",
+        },
+        {
+          titulo: "Identidad Hispana",
+          badge: "Perspectiva civilizatoria",
+          descripcion: "Defiende el legado hispanomestizo frente a la narrativa del victimismo.",
+        },
+        {
+          titulo: "Próximamente",
+          badge: "En preparación",
+          descripcion:
+            "El libro completo estará disponible para compra en breve.",
+        },
+      ],
+      transparencia:
+        "Este libro se encuentra en fase de preparación. Los capítulos estarán disponibles próximamente.",
+    },
   ],
   // Este espacio permite añadir nuevos elementos sin cambiar la lógica principal.
   proyectosFuturos: [],
