@@ -92,10 +92,24 @@
 
     <!-- Controles de audio flotantes globales (fuera de main para que sean realmente sticky) -->
     <div id="audioBookControls" class="audiobook-controls-floating" role="group" aria-label="Controles de audiolibro">
-      <button id="audioPlayBtn" type="button" class="btn-main btn-interact">Escuchar</button>
-      <button id="audioPauseBtn" type="button" class="btn-secondary btn-interact">Pausar</button>
-      <button id="audioStopBtn" type="button" class="btn-danger btn-interact">Detener</button>
-      <p id="audioBookStatus" class="audiobook-status" aria-live="polite">Narración lista.</p>
+      <div class="audiobook-controls-row">
+        <button id="audioPlayBtn" type="button" class="btn-main btn-interact">▶️ Escuchar</button>
+        <button id="audioPauseBtn" type="button" class="btn-secondary btn-interact">⏸️ Pausar</button>
+        <button id="audioStopBtn" type="button" class="btn-danger btn-interact">⏹️ Detener</button>
+      </div>
+      <div class="audiobook-controls-row">
+        <button id="savePositionBtn" type="button" class="btn-secondary btn-interact">💾 Guardar posición</button>
+        <button id="continuePositionBtn" type="button" class="btn-secondary btn-interact">📍 Continuar desde guardado</button>
+        <button id="clearPositionBtn" type="button" class="btn-secondary btn-interact">🧹 Borrar guardado</button>
+      </div>
+      <div class="audiobook-meta">
+        <p class="audiobook-status-line">Estado: <span id="audioStateValue">En espera</span></p>
+        <p class="audiobook-status-line">Fragmentos: <span id="audioChunkValue">0 / 0</span></p>
+        <p class="audiobook-status-line">Palabras aprox.: <span id="audioWordsValue">0</span></p>
+        <p class="audiobook-status-line">Tiempo aprox.: <span id="audioTimeValue">0 min</span></p>
+        <p id="audioBookStatus" class="audiobook-status" aria-live="polite">Sin lectura activa.</p>
+        <p id="audioBookHint" class="audiobook-status">Listo.</p>
+      </div>
     </div>
 
     <script type="module" src="i18n-init.js"></script>
