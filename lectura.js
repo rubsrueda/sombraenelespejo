@@ -28,8 +28,12 @@ const continuePositionBtn = document.getElementById("continuePositionBtn");
 const clearPositionBtn = document.getElementById("clearPositionBtn");
 const readingPageInput = document.getElementById("readingPageInput");
 const goToPageBtn = document.getElementById("goToPageBtn");
+const prevPageBtn = document.getElementById("prevPageBtn");
+const nextPageBtn = document.getElementById("nextPageBtn");
 const readingSegmentInput = document.getElementById("readingSegmentInput");
 const goToSegmentBtn = document.getElementById("goToSegmentBtn");
+const prevSegmentBtn = document.getElementById("prevSegmentBtn");
+const nextSegmentBtn = document.getElementById("nextSegmentBtn");
 const readingPositionInfo = document.getElementById("readingPositionInfo");
 
 const READING_PROGRESS_KEY = "sombra_reading_progress_v1";
@@ -1305,9 +1309,21 @@ async function init() {
         readingPageInput.value = String(readingState.currentPage);
         readingPageInput.max = String(readingState.totalPages);
       }
+      if (prevPageBtn) {
+        prevPageBtn.disabled = readingState.currentPage <= 1;
+      }
+      if (nextPageBtn) {
+        nextPageBtn.disabled = readingState.currentPage >= readingState.totalPages;
+      }
       if (readingSegmentInput) {
         readingSegmentInput.value = String(readingState.currentSegment);
         readingSegmentInput.max = String(readingState.totalSegments);
+      }
+      if (prevSegmentBtn) {
+        prevSegmentBtn.disabled = readingState.currentSegment <= 1;
+      }
+      if (nextSegmentBtn) {
+        nextSegmentBtn.disabled = readingState.currentSegment >= readingState.totalSegments;
       }
     };
 
@@ -1374,9 +1390,33 @@ async function init() {
       });
     }
 
+    if (prevPageBtn) {
+      prevPageBtn.addEventListener("click", () => {
+        renderPage(readingState.currentPage - 1);
+      });
+    }
+
+    if (nextPageBtn) {
+      nextPageBtn.addEventListener("click", () => {
+        renderPage(readingState.currentPage + 1);
+      });
+    }
+
     if (goToSegmentBtn && readingSegmentInput) {
       goToSegmentBtn.addEventListener("click", () => {
         renderSegment(Number(readingSegmentInput.value) || 1);
+      });
+    }
+
+    if (prevSegmentBtn) {
+      prevSegmentBtn.addEventListener("click", () => {
+        renderSegment(readingState.currentSegment - 1);
+      });
+    }
+
+    if (nextSegmentBtn) {
+      nextSegmentBtn.addEventListener("click", () => {
+        renderSegment(readingState.currentSegment + 1);
       });
     }
 

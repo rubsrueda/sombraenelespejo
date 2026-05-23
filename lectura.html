@@ -74,17 +74,29 @@
       </nav>
 
       <section id="readingJumpControls" class="mt-4 content-card card-reveal">
-        <div class="flex flex-col gap-3 md:flex-row md:items-end md:gap-4">
-          <label class="flex flex-1 flex-col gap-1 text-sm font-medium text-slate-700">
-            Ir a página
-            <input id="readingPageInput" type="number" min="1" step="1" class="rounded-md border border-slate-300 px-3 py-2 text-sm" />
-          </label>
-          <button id="goToPageBtn" type="button" class="btn-secondary btn-interact">Ir</button>
-          <label class="flex flex-1 flex-col gap-1 text-sm font-medium text-slate-700">
-            Ir a segmento (400 palabras)
-            <input id="readingSegmentInput" type="number" min="1" step="1" class="rounded-md border border-slate-300 px-3 py-2 text-sm" />
-          </label>
-          <button id="goToSegmentBtn" type="button" class="btn-secondary btn-interact">Ir</button>
+        <div class="flex flex-col gap-3 md:gap-4">
+          <div class="flex flex-col gap-2 md:flex-row md:items-end">
+            <label class="flex flex-1 flex-col gap-1 text-sm font-medium text-slate-700">
+              Ir a página
+              <input id="readingPageInput" type="number" min="1" step="1" class="rounded-md border border-slate-300 px-3 py-2 text-sm" />
+            </label>
+            <div class="flex flex-wrap gap-2">
+              <button id="prevPageBtn" type="button" class="btn-secondary btn-interact">Página anterior</button>
+              <button id="goToPageBtn" type="button" class="btn-secondary btn-interact">Ir</button>
+              <button id="nextPageBtn" type="button" class="btn-secondary btn-interact">Página siguiente</button>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2 md:flex-row md:items-end">
+            <label class="flex flex-1 flex-col gap-1 text-sm font-medium text-slate-700">
+              Ir a segmento (400 palabras)
+              <input id="readingSegmentInput" type="number" min="1" step="1" class="rounded-md border border-slate-300 px-3 py-2 text-sm" />
+            </label>
+            <div class="flex flex-wrap gap-2">
+              <button id="prevSegmentBtn" type="button" class="btn-secondary btn-interact">Segmento anterior</button>
+              <button id="goToSegmentBtn" type="button" class="btn-secondary btn-interact">Ir</button>
+              <button id="nextSegmentBtn" type="button" class="btn-secondary btn-interact">Segmento siguiente</button>
+            </div>
+          </div>
         </div>
         <p id="readingPositionInfo" class="mt-3 text-sm text-slate-600">Página 1 / 1 · Segmento 1 / 1</p>
       </section>
