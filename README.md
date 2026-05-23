@@ -6,7 +6,7 @@ Sombra en el Espejo recorre la anatomía del control emocional y la dependencia,
 
 ## Version actual
 
-- v0.1.4
+- v0.1.5
 
 ## Arquitectura y despliegue actual
 
