@@ -73,6 +73,22 @@
         <!-- Los tabs se generan dinámicamente en lectura.js -->
       </nav>
 
+      <section id="readingJumpControls" class="mt-4 content-card card-reveal">
+        <div class="flex flex-col gap-3 md:flex-row md:items-end md:gap-4">
+          <label class="flex flex-1 flex-col gap-1 text-sm font-medium text-slate-700">
+            Ir a página
+            <input id="readingPageInput" type="number" min="1" step="1" class="rounded-md border border-slate-300 px-3 py-2 text-sm" />
+          </label>
+          <button id="goToPageBtn" type="button" class="btn-secondary btn-interact">Ir</button>
+          <label class="flex flex-1 flex-col gap-1 text-sm font-medium text-slate-700">
+            Ir a segmento (400 palabras)
+            <input id="readingSegmentInput" type="number" min="1" step="1" class="rounded-md border border-slate-300 px-3 py-2 text-sm" />
+          </label>
+          <button id="goToSegmentBtn" type="button" class="btn-secondary btn-interact">Ir</button>
+        </div>
+        <p id="readingPositionInfo" class="mt-3 text-sm text-slate-600">Página 1 / 1 · Segmento 1 / 1</p>
+      </section>
+
       <!-- Contenido dinámico (una sección a la vez) -->
       <section id="contentPanel" class="mt-6 content-card card-reveal">
         <!-- El contenido de la sección activa aparece aquí -->

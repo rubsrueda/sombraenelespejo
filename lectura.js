@@ -26,6 +26,11 @@ const audioTimeValue = document.getElementById("audioTimeValue");
 const savePositionBtn = document.getElementById("savePositionBtn");
 const continuePositionBtn = document.getElementById("continuePositionBtn");
 const clearPositionBtn = document.getElementById("clearPositionBtn");
+const readingPageInput = document.getElementById("readingPageInput");
+const goToPageBtn = document.getElementById("goToPageBtn");
+const readingSegmentInput = document.getElementById("readingSegmentInput");
+const goToSegmentBtn = document.getElementById("goToSegmentBtn");
+const readingPositionInfo = document.getElementById("readingPositionInfo");
 
 const READING_PROGRESS_KEY = "sombra_reading_progress_v1";
 
@@ -36,9 +41,20 @@ const readingState = {
   progressEntryKey: "anon",
   unlocked: false,
   renderTabById: null,
+  words: [],
+  currentPage: 1,
+  currentSegment: 1,
+  totalPages: 1,
+  totalSegments: 1,
+  currentView: "page",
+  renderPage: null,
+  renderSegment: null,
 };
 
 const MAX_TTS_CHUNK = 260;
+const WORDS_PER_PAGE = 220;
+const WORDS_PER_SEGMENT = 400;
+const PREVIEW_WORDS = 400;
 
 const audioState = {
   supported:
@@ -419,6 +435,76 @@ function cleanHeading(raw = "") {
     .trim();
 }
 
+function plainTextFromMarkdown(text = "") {
+  return String(text)
+    .replace(/\r/g, "")
+    .replace(/<!--[\s\S]*?-->/g, " ")
+    .replace(/<a\b[^>]*>(.*?)<\/a>/gi, " $1 ")
+    .replace(/<\/?[^>]+>/g, " ")
+    .split("\n")
+    .map((line) => line
+      .replace(/^#{1,6}\s+/, "")
+      .replace(/^>\s?/, "")
+      .replace(/^[-*+]\s+/, "")
+      .replace(/^\d+[\.)]\s+/, "")
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
+      .replace(/`([^`]+)`/g, "$1")
+      .replace(/\*\*([^*]+)\*\*/g, "$1")
+      .replace(/\*([^*]+)\*/g, "$1")
+      .trim())
+    .filter(Boolean)
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function splitWords(text = "") {
+  return String(text).split(/\s+/).filter(Boolean);
+}
+
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function getWordsSlice(words = [], start = 0, amount = WORDS_PER_PAGE) {
+  if (!Array.isArray(words) || !words.length) {
+    return [];
+  }
+  const safeStart = clamp(start, 0, Math.max(0, words.length - 1));
+  const safeEnd = clamp(safeStart + amount, safeStart + 1, words.length);
+  return words.slice(safeStart, safeEnd);
+}
+
+function chunkText(words = []) {
+  if (!words.length) {
+    return "";
+  }
+  const text = words.join(" ").trim();
+  const chunks = text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [text];
+  return chunks
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => `<p class="reading-paragraph">${escapeHtml(part)}</p>`)
+    .join("");
+}
+
+function renderReadingChunk({ title, words, isPreview = false }) {
+  const body = chunkText(words);
+  const previewNotice = isPreview
+    ? '<p class="reading-paragraph"><strong>Vista previa:</strong> desbloquea el acceso para leer el libro completo.</p>'
+    : "";
+  return `
+    <article class="reading-body stage-chapters">
+      <header class="reading-stage-header">
+        <p class="reading-stage-kicker">Lectura continua</p>
+        <h2 class="reading-stage-title">${escapeHtml(title)}</h2>
+      </header>
+      ${previewNotice}
+      ${body || '<p class="reading-paragraph">No hay contenido disponible.</p>'}
+    </article>
+  `;
+}
+
 function renderSectionContent(tab) {
   const sectionId = tab?.id || "chapters";
   const source = String(tab?.content || "").trim();
@@ -653,15 +739,15 @@ function estimateLineForActiveTab() {
 }
 
 function saveReadingProgress() {
-  if (!readingState.progressEntryKey || !readingState.activeTabId) {
+  if (!readingState.progressEntryKey) {
     return;
   }
 
   const state = readProgressState();
   state[readingState.progressEntryKey] = {
-    tabId: readingState.activeTabId,
-    ratio: getLineRatioFromScroll(),
-    line: estimateLineForActiveTab(),
+    page: readingState.currentPage,
+    segment: readingState.currentSegment,
+    view: readingState.currentView || "page",
     savedAt: new Date().toISOString(),
   };
   writeProgressState(state);
@@ -712,28 +798,14 @@ function scrollToRatio(ratio = 0) {
 }
 
 function getShareableUrl() {
-  if (!readingState.activeTabId) {
-    return window.location.href;
-  }
-  
   const baseUrl = new URL(window.location.origin + window.location.pathname);
   const product = SELECTED_PRODUCT?.id;
   
   if (product) {
     baseUrl.searchParams.set("product", product);
   }
-  
-  // Verificar si es un capítulo individual
-  const currentTab = readingState.availableTabs?.find((t) => t.id === readingState.activeTabId);
-  if (currentTab && currentTab.id.startsWith("chapter-")) {
-    const chapterMatch = currentTab.id.match(/chapter-(\d+)/);
-    if (chapterMatch) {
-      baseUrl.searchParams.set("chapter", chapterMatch[1]);
-    }
-  } else if (readingState.activeTabId !== "prologue" && readingState.activeTabId !== "index") {
-    baseUrl.searchParams.set("section", readingState.activeTabId);
-  }
-  
+  baseUrl.searchParams.set("page", String(readingState.currentPage || 1));
+  baseUrl.searchParams.set("segment", String(readingState.currentSegment || 1));
   return baseUrl.toString();
 }
 
@@ -962,7 +1034,7 @@ function speakChunk(index) {
 
   const utterance = new SpeechSynthesisUtterance(chunk);
   utterance.lang = "es-ES";
-  utterance.rate = 1;
+  utterance.rate = 1.2;
   utterance.pitch = 1;
   if (audioState.voice) {
     utterance.voice = audioState.voice;
@@ -1141,11 +1213,11 @@ function setupAudioControls() {
         updateAudioHint("No hay posición guardada.");
         return;
       }
-      const savedTab = readingState.availableTabs.find((tab) => tab.id === saved.tabId);
-      if (savedTab && typeof readingState.renderTabById === "function") {
-        readingState.renderTabById(savedTab.id);
+      if (saved.view === "segment" && typeof readingState.renderSegment === "function") {
+        readingState.renderSegment(Number(saved.segment) || 1);
+      } else if (typeof readingState.renderPage === "function") {
+        readingState.renderPage(Number(saved.page) || 1);
       }
-      scrollToRatio(Number(saved.ratio) || 0);
       updateAudioHint("Lectura retomada desde guardado.");
     });
   }
@@ -1206,109 +1278,125 @@ async function init() {
       lockedBuyLink.href = `ventas.html?product=${encodeURIComponent(SELECTED_PRODUCT.id)}`;
     }
 
-    // Cargar libro y extraer secciones
+    // Cargar libro en formato continuo (sin depender de una estructura rígida de secciones)
     const sourceText = await loadBook(SELECTED_PRODUCT);
-    const sections = extractSections(sourceText);
-    readingState.sectionRanges = sections?._meta?.ranges || null;
+    const plainText = plainTextFromMarkdown(sourceText);
+    const allWords = splitWords(plainText);
+    const visibleWords = unlocked ? allWords : allWords.slice(0, PREVIEW_WORDS);
 
-    // Extraer capítulos individuales si existen
-    const individualChapters = unlocked ? extractChapters(sections.chapters) : [];
+    readingState.words = visibleWords;
+    readingState.totalPages = Math.max(1, Math.ceil(visibleWords.length / WORDS_PER_PAGE));
+    readingState.totalSegments = Math.max(1, Math.ceil(visibleWords.length / WORDS_PER_SEGMENT));
+    readingState.currentPage = 1;
+    readingState.currentSegment = 1;
+    readingState.currentView = "page";
+    readingState.sectionRanges = null;
 
-    // Definir navegación disponible
-    const availableTabs = [
-      { id: "prologue", label: "Prólogo", content: sections.prologue },
-      { id: "index", label: "Índice", content: sections.index },
-    ];
-
-    // Capítulos solo si tiene acceso
-    if (unlocked) {
-      if (individualChapters.length > 0) {
-        // Si hay capítulos individuales, agregarlos como tabs
-        availableTabs.push(...individualChapters);
-      } else {
-        // Si no hay capítulos individuales, agregar la sección completa
-        availableTabs.push({ id: "chapters", label: "Capítulos", content: sections.chapters });
-      }
-    }
-
-    // Agregar el resto
-    availableTabs.push(
-      { id: "bibliography", label: "Bibliografía", content: sections.bibliography },
-      { id: "epilogue", label: "Epílogo", content: sections.epilogue }
-    );
+    const availableTabs = [{ id: "book", label: "Libro completo", content: plainText }];
     readingState.availableTabs = availableTabs;
+    readingState.activeTabId = "book";
+    readingState.renderTabById = () => ({ id: "book" });
 
-    function renderTabById(tabId) {
-      const tab = availableTabs.find((item) => item.id === tabId) || availableTabs[0];
-      readingState.activeTabId = tab.id;
+    const updatePositionUi = () => {
+      if (readingPositionInfo) {
+        readingPositionInfo.textContent = `Página ${readingState.currentPage} / ${readingState.totalPages} · Segmento ${readingState.currentSegment} / ${readingState.totalSegments}`;
+      }
+      if (readingPageInput) {
+        readingPageInput.value = String(readingState.currentPage);
+        readingPageInput.max = String(readingState.totalPages);
+      }
+      if (readingSegmentInput) {
+        readingSegmentInput.value = String(readingState.currentSegment);
+        readingSegmentInput.max = String(readingState.totalSegments);
+      }
+    };
+
+    const renderFromWordStart = (startWord, amount, viewMode) => {
+      const safeStart = clamp(startWord, 0, Math.max(0, readingState.words.length - 1));
+      const chunk = getWordsSlice(readingState.words, safeStart, amount);
+      const page = clamp(Math.floor(safeStart / WORDS_PER_PAGE) + 1, 1, readingState.totalPages);
+      const segment = clamp(Math.floor(safeStart / WORDS_PER_SEGMENT) + 1, 1, readingState.totalSegments);
+      readingState.currentPage = page;
+      readingState.currentSegment = segment;
+      readingState.currentView = viewMode;
 
       stopNarration({ silent: true });
       updateAudioStatus("Sin lectura activa.");
       updateAudioHint("Listo.");
       updateAudioButtons();
 
-      const tabButtons = document.querySelectorAll(".tab-btn");
-      tabButtons.forEach((btn) => {
-        btn.classList.toggle("active", btn.getAttribute("data-tab") === tab.id);
+      sectionContent.innerHTML = renderReadingChunk({
+        title: SELECTED_PRODUCT.nombre || "Libro",
+        words: chunk,
+        isPreview: !unlocked,
       });
+      updatePositionUi();
+      saveReadingProgress();
+    };
 
-      sectionContent.innerHTML = renderSectionContent(tab);
-      return tab;
+    function renderPage(pageNumber = 1) {
+      const safePage = clamp(pageNumber, 1, readingState.totalPages);
+      const startWord = (safePage - 1) * WORDS_PER_PAGE;
+      renderFromWordStart(startWord, WORDS_PER_PAGE, "page");
     }
-    readingState.renderTabById = renderTabById;
 
-    // Renderizar tabs
-    contentNav.innerHTML = availableTabs
-      .map((tab, idx) => `
-        <button class="tab-btn ${idx === 0 ? "active" : ""}" data-tab="${tab.id}">
-          ${tab.label}
-        </button>
-      `)
-      .join("");
+    function renderSegment(segmentNumber = 1) {
+      const safeSegment = clamp(segmentNumber, 1, readingState.totalSegments);
+      const startWord = (safeSegment - 1) * WORDS_PER_SEGMENT;
+      renderFromWordStart(startWord, WORDS_PER_SEGMENT, "segment");
+    }
+
+    readingState.renderPage = renderPage;
+    readingState.renderSegment = renderSegment;
+
+    contentNav.innerHTML = '<button class="tab-btn active" data-tab="book">Libro completo</button>';
 
     const url = new URL(window.location.href);
-    const requestedLine = Number(url.searchParams.get("line"));
-    const requestedSection = url.searchParams.get("section") || url.searchParams.get("tab");
-    const requestedChapter = url.searchParams.get("chapter") || url.searchParams.get("capitulo");
+    const requestedPage = Number(url.searchParams.get("page") || url.searchParams.get("pagina"));
+    const requestedSegment = Number(url.searchParams.get("segment") || url.searchParams.get("segmento"));
     const savedProgress = restoreReadingProgress();
 
-    let targetTabId = availableTabs[0].id;
-    let targetRatio = 0;
-
-    if (Number.isFinite(requestedLine) && requestedLine > 0) {
-      const lineTabId = tabIdForLine(requestedLine);
-      if (lineTabId) {
-        targetTabId = lineTabId;
-        targetRatio = ratioForLine(lineTabId, requestedLine);
-      }
-    } else if (requestedChapter && individualChapters.length > 0) {
-      const chapterNum = parseInt(requestedChapter, 10);
-      const foundChapter = individualChapters.find((ch) => ch.number === chapterNum);
-      if (foundChapter) {
-        targetTabId = foundChapter.id;
-        targetRatio = 0;
-      }
-    } else if (requestedSection && availableTabs.some((tab) => tab.id === requestedSection)) {
-      targetTabId = requestedSection;
-      targetRatio = 0;
-    } else if (savedProgress?.tabId && availableTabs.some((tab) => tab.id === savedProgress.tabId)) {
-      targetTabId = savedProgress.tabId;
-      targetRatio = Number(savedProgress.ratio) || 0;
+    if (Number.isFinite(requestedSegment) && requestedSegment > 0) {
+      renderSegment(requestedSegment);
+    } else if (Number.isFinite(requestedPage) && requestedPage > 0) {
+      renderPage(requestedPage);
+    } else if (savedProgress?.view === "segment" && Number(savedProgress.segment) > 0) {
+      renderSegment(Number(savedProgress.segment));
+    } else if (Number(savedProgress?.page) > 0) {
+      renderPage(Number(savedProgress.page));
+    } else {
+      renderPage(1);
     }
 
-    renderTabById(targetTabId);
-
-    // Event listeners para tabs
-    const tabButtons = document.querySelectorAll(".tab-btn");
-    tabButtons.forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.preventDefault();
-        const tabId = btn.getAttribute("data-tab");
-        renderTabById(tabId);
-        scrollToRatio(0);
-        saveReadingProgress();
+    if (goToPageBtn && readingPageInput) {
+      goToPageBtn.addEventListener("click", () => {
+        renderPage(Number(readingPageInput.value) || 1);
       });
-    });
+    }
+
+    if (goToSegmentBtn && readingSegmentInput) {
+      goToSegmentBtn.addEventListener("click", () => {
+        renderSegment(Number(readingSegmentInput.value) || 1);
+      });
+    }
+
+    if (readingPageInput) {
+      readingPageInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          renderPage(Number(readingPageInput.value) || 1);
+        }
+      });
+    }
+
+    if (readingSegmentInput) {
+      readingSegmentInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          renderSegment(Number(readingSegmentInput.value) || 1);
+        }
+      });
+    }
 
     // Mostrar/ocultar paneles según acceso
     if (!unlocked) {
@@ -1322,21 +1410,6 @@ async function init() {
       contentNav.classList.remove("hidden");
       lockedPanel.classList.add("hidden");
       setupAudioControls();
-
-      // Restore scroll position after initial render.
-      setTimeout(() => {
-        scrollToRatio(targetRatio);
-      }, 30);
-
-      let saveTimer = null;
-      window.addEventListener("scroll", () => {
-        if (saveTimer) {
-          clearTimeout(saveTimer);
-        }
-        saveTimer = setTimeout(() => {
-          saveReadingProgress();
-        }, 250);
-      }, { passive: true });
 
       window.addEventListener("beforeunload", () => {
         saveReadingProgress();
